@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VehiclePlatform.API.DTOs;
+using VehiclePlatform.API.Domain.Entities;
 
 [ApiController]
 [Route("api/auth")]

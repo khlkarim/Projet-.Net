@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VehiclePlatform.API.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using VehiclePlatform.API.Infrastructure.Data;
 namespace VehiclePlatform.API.Migrations
 {
     [DbContext(typeof(VehicleDbContext))]
-    partial class VehicleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210132026_AddRelationshipUsersAnnouncements")]
+    partial class AddRelationshipUsersAnnouncements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,6 +186,10 @@ namespace VehiclePlatform.API.Migrations
                     b.Property<int>("FuelType")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrls")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Mileage")
                         .HasColumnType("int");
 
@@ -208,42 +215,6 @@ namespace VehiclePlatform.API.Migrations
                     b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Announcements");
-                });
-
-            modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.AnnouncementFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AnnouncementId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("AnnouncementId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AnnouncementId1");
-
-                    b.ToTable("AnnouncementFile");
                 });
 
             modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.ApplicationUser", b =>
@@ -731,25 +702,11 @@ namespace VehiclePlatform.API.Migrations
                     b.Navigation("CreatedBy");
                 });
 
-            modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.AnnouncementFile", b =>
-                {
-                    b.HasOne("VehiclePlatform.API.Domain.Entities.Announcement", "Announcement")
-                        .WithMany("Files")
-                        .HasForeignKey("AnnouncementId1");
-
-                    b.Navigation("Announcement");
-                });
-
             modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.ExpertiseCheckPoint", b =>
                 {
                     b.HasOne("VehiclePlatform.API.Domain.Entities.TechnicalExpertise", null)
                         .WithMany("CheckPoints")
                         .HasForeignKey("TechnicalExpertiseId");
-                });
-
-            modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.Announcement", b =>
-                {
-                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("VehiclePlatform.API.Domain.Entities.ApplicationUser", b =>

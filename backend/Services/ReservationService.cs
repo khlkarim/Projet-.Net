@@ -34,11 +34,11 @@ namespace VehiclePlatform.API.Services
             };
 
             // Calculate price based on Announcement price
-            var announcement = await _context.Announcements.FindAsync(dto.AnnouncementId);
+            /*var announcement = await _context.Announcements.FindAsync(dto.AnnouncementId);
             if (announcement != null && announcement.RentalPricePerDay.HasValue)
             {
                 reservation.CalculateTotalPrice(announcement.RentalPricePerDay.Value);
-            }
+        }*/
 
             _context.Reservations.Add(reservation);
             await _context.SaveChangesAsync();

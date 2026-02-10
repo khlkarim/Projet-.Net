@@ -2,6 +2,7 @@ using VehiclePlatform.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Controllers
 {

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.Infrastructure.Data;
@@ -27,14 +23,16 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
 
         public async Task<Announcement> GetByIdAsync(Guid id)
         {
-            return await _context.Announcements.FindAsync(id);
+            return await _context.Announcements
+                .Include(a => a.Files) // include files
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<List<Announcement>> GetAsync()
         {
-            var query = _context.Announcements.AsQueryable();
-            var result = await query.ToListAsync();
-            return result;
+            return await _context.Announcements
+                .Include(a => a.Files) // include files
+                .ToListAsync();
         }
 
         public async Task<Announcement> UpdateAsync(Announcement announcement)
@@ -46,7 +44,10 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var announcement = await _context.Announcements.FindAsync(id);
+            var announcement = await _context.Announcements
+                .Include(a => a.Files) // include files
+                .FirstOrDefaultAsync(a => a.Id == id);
+
             if (announcement == null) return false;
 
             _context.Announcements.Remove(announcement);
@@ -55,3 +56,4 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
         }
     }
 }
+

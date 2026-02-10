@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
-using VehiclePlatform.API.Domain.Entities;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VehiclePlatform.API.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class AnnouncementsController : ControllerBase
     {
@@ -17,9 +19,10 @@ namespace VehiclePlatform.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAnnouncement(AnnouncementDto dto)
+        public async Task<IActionResult> CreateAnnouncement([FromForm] AnnouncementDto dto)
         {
-            var announcement = await _announcementService.CreateAnnouncementAsync(dto);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var announcement = await _announcementService.CreateAnnouncementAsync(dto, userId);
             return Ok(announcement);
         }
 
@@ -39,16 +42,18 @@ namespace VehiclePlatform.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAnnouncement(Guid id, AnnouncementDto announcementDto)
+        public async Task<IActionResult> UpdateAnnouncement(Guid id, [FromForm] AnnouncementDto announcementDto)
         {
-            var result = await _announcementService.UpdateAnnouncementAsync(id, announcementDto);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _announcementService.UpdateAnnouncementAsync(id, announcementDto, userId);
             return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result  = await _announcementService.DeleteAnnouncementAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result  = await _announcementService.DeleteAnnouncementAsync(id, userId);
 
             if (!result) return BadRequest("Could not update announcement.");
             return Ok();

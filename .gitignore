@@ -1,6 +1,7 @@
 backend/bin
 backend/obj
 backend/.env
+backend/wwwroot
 frontend/.env
 backend/bin
 backend/obj
