@@ -1,20 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.DTOs;
 
 namespace VehiclePlatform.API.Interfaces
 {
     public interface IReviewService
     {
-        Task<Review> CreateReviewAsync(ReviewDto reviewDto);
-        Task<List<Review>> GetReviewsByAnnouncementAsync(Guid announcementId);
-        Task<List<Review>> GetReviewsBySellerAsync(Guid sellerId);
-        Task<Review> UpdateReviewAsync(Guid id, ReviewDto reviewDto);
-        Task<bool> DeleteReviewAsync(Guid id);
-        Task<bool> MarkReviewAsHelpfulAsync(Guid id);
-        Task<decimal> GetAverageRatingAsync(Guid targetId); // Target could be Announcement or Seller
-        Task<bool> SyncToNoSQLAsync(Guid reviewId);
+        Task<ReviewResponseDto> CreateAsync(CreateReviewDto reservationDto, string userId);
+        Task<List<ReviewResponseDto>> GetAllAsync();
+        Task<ReviewResponseDto> GetByIdAsync(Guid id);
+        Task<List<ReviewResponseDto>> GetAllByUserIdAsync(string userId);
+        Task<List<ReviewResponseDto>> GetAllByAnnouncementIdAsync(Guid announcementId);
+        Task<ReviewResponseDto> UpdateAsync(Guid id, UpdateReviewDto reservationDto, string userId);
+        Task<ReviewResponseDto> DeleteAsync(Guid id, string userId); 
     }
 }

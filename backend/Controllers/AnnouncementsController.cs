@@ -1,7 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 namespace VehiclePlatform.API.Controllers
@@ -18,45 +18,93 @@ namespace VehiclePlatform.API.Controllers
             _announcementService = announcementService;
         }
 
+        // POST: api/Announcements
         [HttpPost]
-        public async Task<IActionResult> CreateAnnouncement([FromForm] AnnouncementDto dto)
+        public async Task<IActionResult> Create([FromForm] CreateAnnouncementDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var announcement = await _announcementService.CreateAnnouncementAsync(dto, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var created = await _announcementService.CreateAsync(dto, userId);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+
+        // GET: api/Announcements/{id}
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var announcement = await _announcementService.GetByIdAsync(id);
+            if (announcement == null)
+                return NotFound(new { Message = "Announcement not found." });
+
             return Ok(announcement);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAnnouncement(Guid id)
+        // GET: api/Announcements
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
         {
-            var announcement = await _announcementService.GetAnnouncementByIdAsync(id);
-            if (announcement == null) return NotFound();
-            return Ok(announcement);
+            var announcements = await _announcementService.GetAllAsync();
+            return Ok(announcements);
         }
 
-        [HttpGet()]
-        public async Task<IActionResult> GetAnnouncements()
-        {
-            var results = await _announcementService.GetAnnouncementsAsync();
-            return Ok(results);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAnnouncement(Guid id, [FromForm] AnnouncementDto announcementDto)
+        // GET: api/Announcements/user
+        [HttpGet("user")]
+        public async Task<IActionResult> GetAllByCurrentUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _announcementService.UpdateAnnouncementAsync(id, announcementDto, userId);
-            return Ok(result);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var announcements = await _announcementService.GetAllByUserIdAsync(userId);
+            return Ok(announcements);
         }
 
-        [HttpDelete("{id}")]
+        // PUT: api/Announcements/{id}
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateAnnouncementDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            try
+            {
+                var updated = await _announcementService.UpdateAsync(id, dto, userId);
+                return Ok(updated);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { Message = "Announcement not found." });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+        }
+
+        // DELETE: api/Announcements/{id}
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result  = await _announcementService.DeleteAnnouncementAsync(id, userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-            if (!result) return BadRequest("Could not update announcement.");
-            return Ok();
+            try
+            {
+                var deleted = await _announcementService.DeleteAsync(id, userId);
+                if (!deleted)
+                    return BadRequest(new { Message = "Failed to delete announcement." });
+
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
         }
     }
 }
+

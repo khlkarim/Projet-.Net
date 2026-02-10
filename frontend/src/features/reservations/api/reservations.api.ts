@@ -1,14 +1,50 @@
 import axiosInstance from '~/lib/axios';
-
-import { Reservation, ReservationDto } from '../schemas/reservations.schemas';
+import {
+    ReservationResponse,
+    CreateReservationRequest,
+    UpdateReservationRequest,
+    createReservationRequestSchema,
+    updateReservationRequestSchema,
+    reservationResponseSchema,
+} from '../schemas/reservations.schemas';
 
 export const reservationsApi = {
-    confirm: async (id: string): Promise<void> => {
-        await axiosInstance.post(`/reservations/${id}/confirm`);
+    create: async (data: CreateReservationRequest): Promise<ReservationResponse> => {
+        createReservationRequestSchema.parse(data);
+        const res = await axiosInstance.post('/api/Reservations', data);
+        return reservationResponseSchema.parse(res.data);
     },
 
-    create: async (data: ReservationDto): Promise<Reservation> => {
-        const response = await axiosInstance.post<Reservation>('/reservations', data);
-        return response.data;
+    getAll: async (): Promise<ReservationResponse[]> => {
+        const res = await axiosInstance.get('/api/Reservations');
+        return res.data.map((r: unknown) => reservationResponseSchema.parse(r));
+    },
+
+    getById: async (id: string): Promise<ReservationResponse> => {
+        const res = await axiosInstance.get(`/api/Reservations/${id}`);
+        return reservationResponseSchema.parse(res.data);
+    },
+
+    getAllForCurrentUser: async (): Promise<ReservationResponse[]> => {
+        const res = await axiosInstance.get('/api/Reservations/user');
+        return res.data.map((r: unknown) => reservationResponseSchema.parse(r));
+    },
+
+    getAllByAnnouncement: async (announcementId: string): Promise<ReservationResponse[]> => {
+        const res = await axiosInstance.get(`/api/Reservations/announcement/${announcementId}`);
+        return res.data.map((r: unknown) => reservationResponseSchema.parse(r));
+    },
+
+    update: async (
+        id: string,
+        data: UpdateReservationRequest
+    ): Promise<ReservationResponse> => {
+        updateReservationRequestSchema.parse(data);
+        const res = await axiosInstance.put(`/api/Reservations/${id}`, data);
+        return reservationResponseSchema.parse(res.data);
+    },
+
+    delete: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/api/Reservations/${id}`);
     },
 };

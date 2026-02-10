@@ -2,56 +2,75 @@ import { z } from 'zod';
 
 import { AnnouncementType, FuelType, TransmissionType, VehicleType } from '~/types/enums';
 
-export const announcementDtoSchema = z.object({
-    description: z.string().min(1),
-    imageUrls: z.array(z.string().url()),
-    location: z.string().min(1),
-    price: z.number(),
-    rentalPricePerDay: z.number().nullable().optional(),
-    title: z.string().min(1),
-    type: z.nativeEnum(AnnouncementType),
-    vehicleId: z.string().uuid(),
+/* ================================
+   Create
+================================ */
+
+export const createAnnouncementRequestSchema = z.object({
+    title: z.string().min(1).max(100),
+    description: z.string().max(1000).optional().default(''),
+    mileage: z.number().int().min(0).optional().default(0),
+    price: z.number().min(0).optional().default(0),
+    announcementType: z.nativeEnum(AnnouncementType),
+    brand: z.string().min(1).max(50),
+    model: z.string().min(1).max(50),
+    vehicleType: z.nativeEnum(VehicleType),
+    fuelType: z.nativeEnum(FuelType),
+    transmission: z.nativeEnum(TransmissionType),
+    color: z.string().max(30).optional().default(''),
+    files: z.array(z.instanceof(File)).optional(),
 });
+export type CreateAnnouncementRequest = z.infer<typeof createAnnouncementRequestSchema>;
 
-export type AnnouncementDto = z.infer<typeof announcementDtoSchema>;
+/* ================================
+   Update
+================================ */
 
-export const searchFilterSchema = z.object({
+export const updateAnnouncementRequestSchema = z.object({
+    title: z.string().max(100).optional(),
+    description: z.string().max(1000).optional(),
+    mileage: z.number().int().min(0).optional(),
+    price: z.number().min(0).optional(),
     announcementType: z.nativeEnum(AnnouncementType).optional(),
-    brand: z.string().optional(),
+    brand: z.string().max(50).optional(),
+    model: z.string().max(50).optional(),
+    vehicleType: z.nativeEnum(VehicleType).optional(),
     fuelType: z.nativeEnum(FuelType).optional(),
-    location: z.string().optional(),
-    maxMileage: z.number().optional(),
-    maxPrice: z.number().optional(),
-    maxYear: z.number().optional(),
-    minPrice: z.number().optional(),
-    minYear: z.number().optional(),
-    model: z.string().optional(),
-    onlyVerified: z.boolean().optional(),
     transmission: z.nativeEnum(TransmissionType).optional(),
-    type: z.nativeEnum(VehicleType).optional(),
+    color: z.string().max(30).optional(),
+    files: z.array(z.instanceof(File)).optional(),
 });
+export type UpdateAnnouncementRequest = z.infer<typeof updateAnnouncementRequestSchema>;
 
-export type SearchFilter = z.infer<typeof searchFilterSchema>;
+/* ================================
+   Response
+================================ */
 
-// Assuming the response entity structure based on DTO + generic fields
-export const announcementSchema = announcementDtoSchema.extend({
-    createdAt: z.string().datetime().optional(), // Adjust based on actual entity
-    id: z.string().uuid(),
-    isPublished: z.boolean().optional(),
-    updatedAt: z.string().datetime().optional(), // Adjust based on actual entity
+export const announcementFileSchema = z.object({
+    id: z.number(),
+    fileName: z.string(),
+    filePath: z.string(),
+    size: z.number(),
+    contentType: z.string(),
 });
+export type AnnouncementFile = z.infer<typeof announcementFileSchema>;
 
-export type Announcement = z.infer<typeof announcementSchema>;
-
-export const announcementListingSchema = announcementSchema.extend({
-    brand: z.string(),
-    category: z.string(), // serialized from vehicle type
-    fuelType: z.string(), // serialized from enum
+export const announcementResponseSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string(),
     mileage: z.number(),
+    price: z.number(),
+    announcementType: z.nativeEnum(AnnouncementType),
+    brand: z.string(),
     model: z.string(),
-    transmission: z.string(), // serialized from enum
-    year: z.number(),
+    vehicleType: z.nativeEnum(VehicleType),
+    fuelType: z.nativeEnum(FuelType),
+    transmission: z.nativeEnum(TransmissionType),
+    color: z.string(),
+    createdByUserId: z.string(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+    files: z.array(announcementFileSchema),
 });
-
-export type AnnouncementListing = z.infer<typeof announcementListingSchema>;
-
+export type AnnouncementResponse = z.infer<typeof announcementResponseSchema>;

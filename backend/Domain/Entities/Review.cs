@@ -1,34 +1,29 @@
-using System;
-using VehiclePlatform.API.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace VehiclePlatform.API.Domain.Entities
 {
     public class Review
     {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public Guid? AnnouncementId { get; set; }
-        public Guid? SellerId { get; set; }
-        public ReviewType Type { get; set; }
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Range(1, 5)]
         public int Rating { get; set; }
-        public string Title { get; set; }
-        public string Comment { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool IsVerified { get; set; }
-        public int HelpfulCount { get; set; }
 
-        public void Validate()
-        {
-            if (Rating < 1 || Rating > 5)
-            {
-                throw new ArgumentException("Rating must be between 1 and 5.");
-            }
-        }
+        [MaxLength(100)]
+        public string Title { get; set; } = string.Empty;
 
-        public void MarkAsHelpful()
-        {
-            HelpfulCount++;
-        }
+        [MaxLength(1000)]
+        public string Content { get; set; } = string.Empty;
+
+        [Required]
+        public string ApplicationUserId { get; set; } = string.Empty;
+        public ApplicationUser? CreatedBy { get; set; }
+
+        [Required]
+        public Guid AnnouncementId { get; set; }
+        public Announcement? Announcement { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -2,21 +2,39 @@ import { z } from 'zod';
 
 import { ReservationStatus } from '~/types/enums';
 
-export const reservationDtoSchema = z.object({
-    announcementId: z.string().uuid(),
-    endDate: z.string().datetime(),
-    notes: z.string().optional(),
+/* ================================
+   Create
+================================ */
+
+export const createReservationRequestSchema = z.object({
+    announcementId: z.string(),
     startDate: z.string().datetime(),
-    userId: z.string().uuid(),
+    endDate: z.string().datetime(),
 });
+export type CreateReservationRequest = z.infer<typeof createReservationRequestSchema>;
 
-export type ReservationDto = z.infer<typeof reservationDtoSchema>;
+/* ================================
+   Update
+================================ */
 
-export const reservationSchema = reservationDtoSchema.extend({
-    createdAt: z.string().datetime(),
-    id: z.string().uuid(),
+export const updateReservationRequestSchema = z.object({
+    status: z.nativeEnum(ReservationStatus).optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+});
+export type UpdateReservationRequest = z.infer<typeof updateReservationRequestSchema>;
+
+/* ================================
+   Response
+================================ */
+
+export const reservationResponseSchema = z.object({
+    id: z.string(),
+    announcementId: z.string(),
+    applicationUserId: z.string(),
+    startDate: z.string().datetime(),
+    endDate: z.string().datetime(),
     status: z.nativeEnum(ReservationStatus),
-    totalPrice: z.number(),
+    createdAt: z.string().datetime(),
 });
-
-export type Reservation = z.infer<typeof reservationSchema>;
+export type ReservationResponse = z.infer<typeof reservationResponseSchema>;

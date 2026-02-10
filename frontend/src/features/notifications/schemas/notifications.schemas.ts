@@ -1,21 +1,24 @@
 import { z } from 'zod';
 
-import { NotificationType } from '~/types/enums';
-
-export const notificationDtoSchema = z.object({
-    actionUrl: z.string().optional(),
-    message: z.string().min(1),
-    title: z.string().min(1),
-    type: z.nativeEnum(NotificationType),
-    userId: z.string().uuid(),
+export const createNotificationRequestSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+    recipients: z.array(z.string()),
 });
+export type CreateNotificationRequest = z.infer<typeof createNotificationRequestSchema>;
 
-export type NotificationDto = z.infer<typeof notificationDtoSchema>;
-
-export const notificationSchema = notificationDtoSchema.extend({
-    createdAt: z.string().datetime(),
-    id: z.string().uuid(),
-    isRead: z.boolean(),
+export const updateNotificationRequestSchema = z.object({
+    title: z.string(),
+    content: z.string(),
+    recipients: z.array(z.string()),
 });
+export type UpdateNotificationRequest = z.infer<typeof updateNotificationRequestSchema>;
 
-export type Notification = z.infer<typeof notificationSchema>;
+export const notificationResponseSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    content: z.string(),
+    recipients: z.array(z.string()),
+    createdAt: z.string().datetime()
+});
+export type NotificationResponse = z.infer<typeof notificationResponseSchema>

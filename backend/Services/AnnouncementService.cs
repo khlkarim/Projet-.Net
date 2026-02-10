@@ -6,21 +6,17 @@ namespace VehiclePlatform.API.Services
 {
     public class AnnouncementService : IAnnouncementService
     {
-        private readonly IAnnouncementRepository _announcementRepository;
-        private readonly IWebHostEnvironment _env;
+        private readonly IAnnouncementRepository _repository;
 
-        public AnnouncementService(IAnnouncementRepository announcementRepository, IWebHostEnvironment env)
+        public AnnouncementService(IAnnouncementRepository repository)
         {
-            _announcementRepository = announcementRepository;
-            _env = env;
+            _repository = repository;
         }
 
-        // Create announcement and return DTO
-        public async Task<AnnouncementResponseDto> CreateAnnouncementAsync(AnnouncementDto dto, string userId)
+        public async Task<AnnouncementResponseDto> CreateAsync(CreateAnnouncementDto dto, string userId)
         {
             var announcement = new Announcement
             {
-                Id = Guid.NewGuid(),
                 Title = dto.Title,
                 Description = dto.Description,
                 Mileage = dto.Mileage,
@@ -32,141 +28,120 @@ namespace VehiclePlatform.API.Services
                 FuelType = dto.FuelType,
                 Transmission = dto.Transmission,
                 Color = dto.Color,
-                ApplicationUserId = userId
+                ApplicationUserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                Files = dto.Files?.Select(MapFile).ToList() ?? new List<AnnouncementFile>()
             };
 
-            // Handle files
-            if (dto.Files != null && dto.Files.Any())
-            {
-                var uploadFolder = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads");
-                Directory.CreateDirectory(uploadFolder);
-
-                foreach (var file in dto.Files)
-                {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
-                    var filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                    using var stream = System.IO.File.Create(filePath);
-                    await file.CopyToAsync(stream);
-
-                    announcement.Files.Add(new AnnouncementFile
-                    {
-                        FileName = file.FileName,
-                        FilePath = $"/uploads/{uniqueFileName}",
-                        Size = file.Length,
-                        ContentType = file.ContentType
-                    });
-                }
-            }
-
-            var created = await _announcementRepository.AddAsync(announcement);
-            return MapToDto(created);
+            var created = await _repository.CreateAsync(announcement);
+            return MapToResponse(created);
         }
 
-        public async Task<AnnouncementResponseDto> GetAnnouncementByIdAsync(Guid id)
+        public async Task<List<AnnouncementResponseDto>> GetAllAsync()
         {
-            var announcement = await _announcementRepository.GetByIdAsync(id);
-            return announcement == null ? null : MapToDto(announcement);
+            var announcements = await _repository.GetAllAsync();
+            return announcements.Select(MapToResponse).ToList();
         }
 
-        public async Task<List<AnnouncementResponseDto>> GetAnnouncementsAsync()
+        public async Task<List<AnnouncementResponseDto>> GetAllByUserIdAsync(string userId)
         {
-            var announcements = await _announcementRepository.GetAsync();
-            return announcements.Select(MapToDto).ToList();
+            var announcements = await _repository.GetAllByUserIdAsync(userId);
+            return announcements.Select(MapToResponse).ToList();
         }
 
-        public async Task<AnnouncementResponseDto> UpdateAnnouncementAsync(Guid id, AnnouncementDto dto, string userId)
+        public async Task<AnnouncementResponseDto> GetByIdAsync(Guid id)
         {
-            var announcement = await _announcementRepository.GetByIdAsync(id);
-            if (announcement == null) return null;
+            var announcement = await _repository.GetByIdAsync(id);
+            if (announcement == null)
+                throw new KeyNotFoundException("Announcement not found.");
+            return MapToResponse(announcement);
+        }
+
+        public async Task<AnnouncementResponseDto> UpdateAsync(Guid id, UpdateAnnouncementDto dto, string userId)
+        {
+            var announcement = await _repository.GetByIdAsync(id);
+            if (announcement == null)
+                throw new KeyNotFoundException("Announcement not found.");
 
             if (announcement.ApplicationUserId != userId)
-                throw new UnauthorizedAccessException("You are not the owner of this announcement.");
+                throw new UnauthorizedAccessException("You are not allowed to update this announcement.");
 
-            announcement.Title = dto.Title;
-            announcement.Description = dto.Description;
-            announcement.Mileage = dto.Mileage;
-            announcement.Price = dto.Price;
-            announcement.AnnouncementType = dto.AnnouncementType;
-            announcement.Brand = dto.Brand;
-            announcement.Model = dto.Model;
-            announcement.VehicleType = dto.VehicleType;
-            announcement.FuelType = dto.FuelType;
-            announcement.Transmission = dto.Transmission;
-            announcement.Color = dto.Color;
+            // Update fields if provided
+            announcement.Title = dto.Title ?? announcement.Title;
+            announcement.Description = dto.Description ?? announcement.Description;
+            announcement.Mileage = dto.Mileage ?? announcement.Mileage;
+            announcement.Price = dto.Price ?? announcement.Price;
+            announcement.AnnouncementType = dto.AnnouncementType ?? announcement.AnnouncementType;
+            announcement.Brand = dto.Brand ?? announcement.Brand;
+            announcement.Model = dto.Model ?? announcement.Model;
+            announcement.VehicleType = dto.VehicleType ?? announcement.VehicleType;
+            announcement.FuelType = dto.FuelType ?? announcement.FuelType;
+            announcement.Transmission = dto.Transmission ?? announcement.Transmission;
+            announcement.Color = dto.Color ?? announcement.Color;
+            announcement.UpdatedAt = DateTime.UtcNow;
 
-            // Handle new uploaded files
+            // Add new files if any
             if (dto.Files != null && dto.Files.Any())
             {
-                var uploadFolder = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads");
-                Directory.CreateDirectory(uploadFolder);
-
-                foreach (var file in dto.Files)
-                {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
-                    var filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                    using var stream = System.IO.File.Create(filePath);
-                    await file.CopyToAsync(stream);
-
-                    announcement.Files.Add(new AnnouncementFile
-                    {
-                        FileName = file.FileName,
-                        FilePath = $"/uploads/{uniqueFileName}",
-                        Size = file.Length,
-                        ContentType = file.ContentType
-                    });
-                }
+                announcement.Files.AddRange(dto.Files.Select(MapFile));
             }
 
-            var updated = await _announcementRepository.UpdateAsync(announcement);
-            return MapToDto(updated);
+            var updated = await _repository.UpdateAsync(announcement);
+            return MapToResponse(updated);
         }
 
-        public async Task<bool> DeleteAnnouncementAsync(Guid id, string userId)
+        public async Task<bool> DeleteAsync(Guid id, string userId)
         {
-            var announcement = await _announcementRepository.GetByIdAsync(id);
-            if (announcement == null) return false;
+            var announcement = await _repository.GetByIdAsync(id);
+            if (announcement == null)
+                return false;
 
             if (announcement.ApplicationUserId != userId)
-                throw new UnauthorizedAccessException("You are not the owner");
+                throw new UnauthorizedAccessException("You are not allowed to delete this announcement.");
 
-            // Delete files from disk
-            if (announcement.Files != null && announcement.Files.Any())
-            {
-                foreach (var file in announcement.Files)
-                {
-                    var fullPath = Path.Combine(_env.WebRootPath ?? "wwwroot", file.FilePath.TrimStart('/'));
-                    if (System.IO.File.Exists(fullPath))
-                        System.IO.File.Delete(fullPath);
-                }
-            }
-
-            return await _announcementRepository.DeleteAsync(id);
+            return await _repository.DeleteAsync(id);
         }
 
-        // Helper: maps entity to DTO to avoid circular references
-        private AnnouncementResponseDto MapToDto(Announcement entity)
+        private static AnnouncementResponseDto MapToResponse(Announcement announcement)
         {
             return new AnnouncementResponseDto
             {
-                Id = entity.Id,
-                Title = entity.Title,
-                Description = entity.Description,
-                Mileage = entity.Mileage,
-                Price = entity.Price,
-                AnnouncementType = entity.AnnouncementType,
-                Brand = entity.Brand,
-                Model = entity.Model,
-                VehicleType = entity.VehicleType,
-                FuelType = entity.FuelType,
-                Transmission = entity.Transmission,
-                Color = entity.Color,
-                Files = entity.Files.Select(f => new AnnouncementFileDto
+                Id = announcement.Id,
+                Title = announcement.Title,
+                Description = announcement.Description,
+                Mileage = announcement.Mileage,
+                Price = announcement.Price,
+                AnnouncementType = announcement.AnnouncementType,
+                Brand = announcement.Brand,
+                Model = announcement.Model,
+                VehicleType = announcement.VehicleType,
+                FuelType = announcement.FuelType,
+                Transmission = announcement.Transmission,
+                Color = announcement.Color,
+                CreatedByUserId = announcement.ApplicationUserId,
+                CreatedAt = announcement.CreatedAt,
+                UpdatedAt = announcement.UpdatedAt,
+                Files = announcement.Files.Select(f => new AnnouncementFileDto
                 {
+                    Id = f.Id,
                     FileName = f.FileName,
-                    FilePath = f.FilePath
+                    FilePath = f.FilePath,
+                    Size = f.Size,
+                    ContentType = f.ContentType
                 }).ToList()
+            };
+        }
+
+        private static AnnouncementFile MapFile(IFormFile file)
+        {
+            // You can expand this to save the file to disk or cloud storage
+            return new AnnouncementFile
+            {
+                FileName = file.FileName,
+                FilePath = $"uploads/{file.FileName}", // placeholder path
+                Size = file.Length,
+                ContentType = file.ContentType
             };
         }
     }

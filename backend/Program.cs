@@ -94,21 +94,16 @@ builder.Services.AddDbContext<VehicleDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositories
-builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-builder.Services.AddScoped<INoSQLReviewRepository, NoSQLReviewRepository>(); // Singleton usually for Mongo client, but repo logic is stateless or scoped
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Services
-builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
-builder.Services.AddScoped<IExpertiseService, ExpertiseService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IAIAnalysisService, AIAnalysisService>();
 
 var app = builder.Build();
 

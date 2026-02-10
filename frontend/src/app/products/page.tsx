@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useGetAnnouncements } from "~/features/announcements/hooks";
+import { useAnnouncements } from "~/features/announcements/hooks";
 
 import { useCart } from "~/lib/hooks/use-cart";
 import { ProductCard } from "~/ui/components/product-card";
@@ -113,7 +113,7 @@ const products: Product[] = [
 
 export default function ProductsPage() {
   const { addItem } = useCart();
-  const { data: announcements, isPending, isError, error } = useGetAnnouncements();
+  const { data: announcements, isPending, isError, error } = useAnnouncements();
   console.log("data: ", announcements);
   console.log("isPending: ", isPending);
   console.log("isError: ", isError);

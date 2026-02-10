@@ -1,25 +1,39 @@
 import { z } from 'zod';
 
-import { ReviewType } from '~/types/enums';
+/* ================================
+   Create
+================================ */
 
-export const reviewDtoSchema = z.object({
-    announcementId: z.string().uuid().nullable().optional(),
-    comment: z.string().min(1),
+export const createReviewRequestSchema = z.object({
     rating: z.number().int().min(1).max(5),
-    sellerId: z.string().uuid().nullable().optional(),
-    title: z.string().min(1),
-    type: z.nativeEnum(ReviewType),
+    title: z.string().max(100).optional().default(''),
+    content: z.string().max(1000).optional().default(''),
+    announcementId: z.string(),
 });
+export type CreateReviewRequest = z.infer<typeof createReviewRequestSchema>;
 
-export type ReviewDto = z.infer<typeof reviewDtoSchema>;
+/* ================================
+   Update
+================================ */
 
-export const reviewSchema = reviewDtoSchema.extend({
+export const updateReviewRequestSchema = z.object({
+    rating: z.number().int().min(1).max(5).optional(),
+    title: z.string().max(100).optional(),
+    content: z.string().max(1000).optional(),
+});
+export type UpdateReviewRequest = z.infer<typeof updateReviewRequestSchema>;
+
+/* ================================
+   Response
+================================ */
+
+export const reviewResponseSchema = z.object({
+    id: z.string(),
+    rating: z.number(),
+    title: z.string(),
+    content: z.string(),
+    applicationUserId: z.string(),
+    announcementId: z.string(),
     createdAt: z.string().datetime(),
-    helpfulCount: z.number(),
-    id: z.string().uuid(),
-    isVerified: z.boolean(),
-    updatedAt: z.string().datetime(),
-    userId: z.string().uuid(), // Derived from entity but not in DTO
 });
-
-export type Review = z.infer<typeof reviewSchema>;
+export type ReviewResponse = z.infer<typeof reviewResponseSchema>;

@@ -1,24 +1,50 @@
 import axiosInstance from '~/lib/axios';
-
-import { Review, ReviewDto } from '../schemas/reviews.schemas';
+import {
+    ReviewResponse,
+    CreateReviewRequest,
+    UpdateReviewRequest,
+    createReviewRequestSchema,
+    updateReviewRequestSchema,
+    reviewResponseSchema,
+} from '../schemas/reviews.schemas';
 
 export const reviewsApi = {
-    create: async (data: ReviewDto): Promise<Review> => {
-        const response = await axiosInstance.post<Review>('/reviews', data);
-        return response.data;
+    create: async (data: CreateReviewRequest): Promise<ReviewResponse> => {
+        createReviewRequestSchema.parse(data);
+        const res = await axiosInstance.post('/api/Reviews', data);
+        return reviewResponseSchema.parse(res.data);
     },
 
-    getByAnnouncement: async (id: string): Promise<Review[]> => {
-        const response = await axiosInstance.get<Review[]>(`/reviews/announcement/${id}`);
-        return response.data;
+    getAll: async (): Promise<ReviewResponse[]> => {
+        const res = await axiosInstance.get('/api/Reviews');
+        return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
     },
 
-    getBySeller: async (id: string): Promise<Review[]> => {
-        const response = await axiosInstance.get<Review[]>(`/reviews/seller/${id}`);
-        return response.data;
+    getById: async (id: string): Promise<ReviewResponse> => {
+        const res = await axiosInstance.get(`/api/Reviews/${id}`);
+        return reviewResponseSchema.parse(res.data);
     },
 
-    markHelpful: async (id: string): Promise<void> => {
-        await axiosInstance.post(`/reviews/${id}/helpful`);
+    getAllForCurrentUser: async (): Promise<ReviewResponse[]> => {
+        const res = await axiosInstance.get('/api/Reviews/user');
+        return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
+    },
+
+    getAllByAnnouncement: async (announcementId: string): Promise<ReviewResponse[]> => {
+        const res = await axiosInstance.get(`/api/Reviews/announcement/${announcementId}`);
+        return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
+    },
+
+    update: async (
+        id: string,
+        data: UpdateReviewRequest
+    ): Promise<ReviewResponse> => {
+        updateReviewRequestSchema.parse(data);
+        const res = await axiosInstance.put(`/api/Reviews/${id}`, data);
+        return reviewResponseSchema.parse(res.data);
+    },
+
+    delete: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/api/Reviews/${id}`);
     },
 };

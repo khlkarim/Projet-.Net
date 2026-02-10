@@ -1,74 +1,110 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.DTOs;
-using VehiclePlatform.API.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using VehiclePlatform.API.Interfaces;
+using VehiclePlatform.API.Domain.Entities;
+using VehiclePlatform.API.Infrastructure.Data;
 
 namespace VehiclePlatform.API.Services
 {
     public class NotificationService : INotificationService
     {
-        private readonly VehicleDbContext _context;
+        private readonly INotificationRepository _repository;
+        private readonly VehicleDbContext _context; // Needed to resolve users
 
-        public NotificationService(VehicleDbContext context)
+        public NotificationService(INotificationRepository repository, VehicleDbContext context)
         {
+            _repository = repository;
             _context = context;
         }
 
-        public async Task<Notification> SendNotificationAsync(NotificationDto dto)
+        public async Task<NotificationResponseDto> CreateAsync(CreateNotificationDto dto)
         {
+            // Resolve users
+            var recipients = await _context.Users
+                .Where(u => dto.RecipientIds.Contains(u.Id))
+                .ToListAsync();
+
+            if (!recipients.Any())
+                throw new KeyNotFoundException("No valid recipients found.");
+
             var notification = new Notification
             {
-                Id = Guid.NewGuid(),
-                UserId = dto.UserId,
-                Type = dto.Type,
                 Title = dto.Title,
-                Message = dto.Message,
-                ActionUrl = dto.ActionUrl,
-                CreatedAt = DateTime.UtcNow,
-                IsRead = false
+                Content = dto.Content,
+                Recipients = recipients,
+                CreatedAt = DateTime.UtcNow
             };
 
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
-            return notification;
+            var created = await _repository.CreateAsync(notification);
+            return MapToResponse(created);
         }
 
-        public async Task<List<Notification>> GetUserNotificationsAsync(Guid userId)
+        public async Task<List<NotificationResponseDto>> GetAllAsync()
         {
-            return await _context.Notifications
-                .Where(n => n.UserId == userId)
-                .OrderByDescending(n => n.CreatedAt)
+            var notifications = await _repository.GetAllAsync();
+            return notifications.Select(MapToResponse).ToList();
+        }
+
+        public async Task<List<NotificationResponseDto>> GetAllByUserIdAsync(string userId)
+        {
+            var notifications = await _repository.GetAllByUserIdAsync(userId);
+            return notifications.Select(MapToResponse).ToList();
+        }
+
+        public async Task<NotificationResponseDto> GetByIdAsync(Guid id)
+        {
+            var notification = await _repository.GetByIdAsync(id);
+            if (notification == null)
+                throw new KeyNotFoundException("Notification not found.");
+            return MapToResponse(notification);
+        }
+
+        public async Task<NotificationResponseDto> UpdateAsync(Guid id, UpdateNotificationDto dto)
+        {
+            var notification = await _repository.GetByIdAsync(id);
+            if (notification == null)
+                throw new KeyNotFoundException("Notification not found.");
+
+            // Resolve recipients
+            var recipients = await _context.Users
+                .Where(u => dto.RecipientIds.Contains(u.Id))
                 .ToListAsync();
+
+            if (!recipients.Any())
+                throw new KeyNotFoundException("No valid recipients found.");
+
+            notification.Title = dto.Title;
+            notification.Content = dto.Content;
+            notification.Recipients = recipients;
+
+            var updated = await _repository.UpdateAsync(notification);
+            return MapToResponse(updated);
         }
 
-        public async Task<bool> MarkAsReadAsync(Guid notificationId)
+        public async Task<NotificationResponseDto> DeleteAsync(Guid id)
         {
-             var notification = await _context.Notifications.FindAsync(notificationId);
-             if (notification == null) return false;
+            var notification = await _repository.GetByIdAsync(id);
+            if (notification == null)
+                throw new KeyNotFoundException("Notification not found.");
 
-             notification.MarkAsRead();
-             await _context.SaveChangesAsync();
-             return true;
+            var deleted = await _repository.DeleteAsync(id);
+            if (!deleted)
+                throw new InvalidOperationException("Failed to delete notification.");
+
+            return MapToResponse(notification);
         }
 
-        public async Task<bool> MarkAllAsReadAsync(Guid userId)
+        private static NotificationResponseDto MapToResponse(Notification notification)
         {
-            var notifications = await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .ToListAsync();
-
-            if (!notifications.Any()) return false;
-
-            foreach (var n in notifications)
-                n.MarkAsRead();
-
-            await _context.SaveChangesAsync();
-            return true;
+            return new NotificationResponseDto
+            {
+                Id = notification.Id,
+                Title = notification.Title,
+                Content = notification.Content,
+                RecipientIds = notification.Recipients.Select(u => u.Id).ToList(),
+                CreatedAt = notification.CreatedAt
+            };
         }
     }
 }
+

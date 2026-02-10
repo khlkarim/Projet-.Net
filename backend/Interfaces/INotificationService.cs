@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.DTOs;
 
 namespace VehiclePlatform.API.Interfaces
 {
     public interface INotificationService
     {
-        Task<Notification> SendNotificationAsync(NotificationDto notificationDto);
-        Task<List<Notification>> GetUserNotificationsAsync(Guid userId);
-        Task<bool> MarkAsReadAsync(Guid notificationId);
-        Task<bool> MarkAllAsReadAsync(Guid userId);
+        Task<NotificationResponseDto> CreateAsync(CreateNotificationDto notificationDto);
+        Task<List<NotificationResponseDto>> GetAllAsync();
+        Task<NotificationResponseDto> GetByIdAsync(Guid id);
+        Task<List<NotificationResponseDto>> GetAllByUserIdAsync(string userId);
+        Task<NotificationResponseDto> UpdateAsync(Guid id, UpdateNotificationDto notificationDto);
+        Task<NotificationResponseDto> DeleteAsync(Guid id);
     }
 }

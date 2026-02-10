@@ -1,7 +1,13 @@
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return (
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-50/50 via-white to-sky-50/50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950 flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-6xl mx-auto">
+        {children}
+      </div>
+    </div>
+  );
 }

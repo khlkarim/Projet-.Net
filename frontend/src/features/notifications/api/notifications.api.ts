@@ -1,26 +1,42 @@
 import axiosInstance from '~/lib/axios';
-
-import { Notification } from '../schemas/notifications.schemas';
+import {
+    NotificationResponse,
+    CreateNotificationRequest,
+    UpdateNotificationRequest,
+    createNotificationRequestSchema,
+    updateNotificationRequestSchema,
+    notificationResponseSchema,
+} from '../schemas/notifications.schemas';
 
 export const notificationsApi = {
-    clearAll: async (userId: string): Promise<void> => {
-        await axiosInstance.delete(`/notifications/user/${userId}`);
+    create: async (data: CreateNotificationRequest): Promise<NotificationResponse> => {
+        createNotificationRequestSchema.parse(data);
+        const res = await axiosInstance.post('/api/Notifications', data);
+        return notificationResponseSchema.parse(res.data);
+    },
+
+    getAll: async (): Promise<NotificationResponse[]> => {
+        const res = await axiosInstance.get('/api/Notifications');
+        return res.data.map((n: NotificationResponse) => notificationResponseSchema.parse(n));
+    },
+
+    getAllForCurrentUser: async (): Promise<NotificationResponse[]> => {
+        const res = await axiosInstance.get('/api/Notifications/user');
+        return res.data.map((n: NotificationResponse) => notificationResponseSchema.parse(n));
+    },
+
+    getById: async (id: string): Promise<NotificationResponse> => {
+        const res = await axiosInstance.get(`/api/Notifications/${id}`);
+        return notificationResponseSchema.parse(res.data);
+    },
+
+    update: async (id: string, data: UpdateNotificationRequest): Promise<NotificationResponse> => {
+        updateNotificationRequestSchema.parse(data);
+        const res = await axiosInstance.patch(`/api/Notifications/${id}`, data);
+        return notificationResponseSchema.parse(res.data);
     },
 
     delete: async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/notifications/${id}`);
-    },
-
-    getUserNotifications: async (userId: string): Promise<Notification[]> => {
-        const response = await axiosInstance.get<Notification[]>(`/notifications/user/${userId}`);
-        return response.data;
-    },
-
-    markAllAsRead: async (userId: string): Promise<void> => {
-        await axiosInstance.put(`/notifications/user/${userId}/read-all`);
-    },
-
-    markAsRead: async (id: string): Promise<void> => {
-        await axiosInstance.put(`/notifications/${id}/read`);
+        await axiosInstance.delete(`/api/Notifications/${id}`);
     },
 };

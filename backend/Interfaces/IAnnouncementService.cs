@@ -1,14 +1,14 @@
 using VehiclePlatform.API.DTOs;
-using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Interfaces
 {
     public interface IAnnouncementService
     {
-        Task<AnnouncementResponseDto> CreateAnnouncementAsync(AnnouncementDto announcementDto, string userId);
-        Task<AnnouncementResponseDto> GetAnnouncementByIdAsync(Guid id);
-        Task<List<AnnouncementResponseDto>> GetAnnouncementsAsync();
-        Task<AnnouncementResponseDto> UpdateAnnouncementAsync(Guid id, AnnouncementDto announcementDto, string userId);
-        Task<bool> DeleteAnnouncementAsync(Guid id, string userId);
+        Task<AnnouncementResponseDto> CreateAsync(CreateAnnouncementDto announcementDto, string userId);
+        Task<List<AnnouncementResponseDto>> GetAllAsync();
+        Task<List<AnnouncementResponseDto>> GetAllByUserIdAsync(string userId);
+        Task<AnnouncementResponseDto> GetByIdAsync(Guid id);
+        Task<AnnouncementResponseDto> UpdateAsync(Guid id, UpdateAnnouncementDto announcementDto, string userId);
+        Task<bool> DeleteAsync(Guid id, string userId);
     }
 }

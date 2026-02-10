@@ -1,37 +1,30 @@
-using System;
 using VehiclePlatform.API.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace VehiclePlatform.API.Domain.Entities
 {
     public class Reservation
     {
-        public Guid Id { get; set; }
-        public Guid AnnouncementId { get; set; }
-        public Guid UserId { get; set; }
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        [Required]
         public DateTime StartDate { get; set; }
+
+        [Required]
         public DateTime EndDate { get; set; }
-        public ReservationStatus Status { get; set; }
-        public decimal TotalPrice { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string Notes { get; set; }
 
-        public void CalculateTotalPrice(decimal pricePerDay)
-        {
-            var days = (EndDate - StartDate).Days;
-            if (days > 0)
-            {
-                TotalPrice = days * pricePerDay;
-            }
-        }
+        [Required]
+        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
 
-        public void Confirm()
-        {
-            Status = ReservationStatus.Confirmed;
-        }
+        [Required]
+        public string ApplicationUserId { get; set; } = string.Empty;
+        public ApplicationUser? CreatedBy { get; set; }
 
-        public void Cancel()
-        {
-            Status = ReservationStatus.Cancelled;
-        }
+        [Required]
+        public Guid AnnouncementId { get; set; }
+        public Announcement? Announcement { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

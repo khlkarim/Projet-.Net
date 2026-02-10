@@ -1,116 +1,108 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
+using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Services
 {
     public class ReviewService : IReviewService
     {
-        private readonly IReviewRepository _reviewRepository;
-        private readonly INoSQLReviewRepository _noSqlRepository;
+        private readonly IReviewRepository _repository;
 
-        public ReviewService(IReviewRepository reviewRepository, INoSQLReviewRepository noSqlRepository)
+        public ReviewService(IReviewRepository repository)
         {
-            _reviewRepository = reviewRepository;
-            _noSqlRepository = noSqlRepository;
+            _repository = repository;
         }
 
-        public async Task<Review> CreateReviewAsync(ReviewDto dto)
+        public async Task<ReviewResponseDto> CreateAsync(CreateReviewDto dto, string userId)
         {
             var review = new Review
             {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(), // Should get from context in Controller
-                AnnouncementId = dto.AnnouncementId,
-                SellerId = dto.SellerId,
-                Type = dto.Type,
                 Rating = dto.Rating,
                 Title = dto.Title,
-                Comment = dto.Comment,
-                CreatedAt = DateTime.UtcNow,
-                IsVerified = false
+                Content = dto.Content,
+                AnnouncementId = dto.AnnouncementId,
+                ApplicationUserId = userId,
+                CreatedAt = DateTime.UtcNow
             };
-            
-            review.Validate();
-            
-            var created = await _reviewRepository.AddAsync(review);
-            
-            // Sync to NoSQL
-            await SyncToNoSQLAsync(created.Id);
 
-            return created;
+            var created = await _repository.CreateAsync(review);
+            return MapToResponse(created);
         }
 
-        public async Task<List<Review>> GetReviewsByAnnouncementAsync(Guid announcementId)
+        public async Task<List<ReviewResponseDto>> GetAllAsync()
         {
-            return await _reviewRepository.GetByAnnouncementIdAsync(announcementId);
+            var reviews = await _repository.GetAllAsync();
+            return reviews.Select(MapToResponse).ToList();
         }
 
-        public async Task<List<Review>> GetReviewsBySellerAsync(Guid sellerId)
+        public async Task<List<ReviewResponseDto>> GetAllByUserIdAsync(string userId)
         {
-            return await _reviewRepository.GetBySellerIdAsync(sellerId);
+            var reviews = await _repository.GetAllByUserIdAsync(userId);
+            return reviews.Select(MapToResponse).ToList();
         }
 
-        public async Task<Review> UpdateReviewAsync(Guid id, ReviewDto dto)
+        public async Task<List<ReviewResponseDto>> GetAllByAnnouncementIdAsync(Guid announcementId)
         {
-            var review = await _reviewRepository.GetByIdAsync(id);
-            if (review == null) return null;
-
-            review.Rating = dto.Rating;
-            review.Title = dto.Title;
-            review.Comment = dto.Comment;
-            review.UpdatedAt = DateTime.UtcNow;
-
-            return await _reviewRepository.UpdateAsync(review);
+            var reviews = await _repository.GetAllByAnnouncementIdAsync(announcementId);
+            return reviews.Select(MapToResponse).ToList();
         }
 
-        public async Task<bool> DeleteReviewAsync(Guid id)
+        public async Task<ReviewResponseDto> GetByIdAsync(Guid id)
         {
-            return await _reviewRepository.DeleteAsync(id);
+            var review = await _repository.GetByIdAsync(id);
+            if (review == null)
+                throw new KeyNotFoundException("Review not found.");
+            return MapToResponse(review);
         }
 
-        public async Task<bool> MarkReviewAsHelpfulAsync(Guid id)
+        public async Task<ReviewResponseDto> UpdateAsync(Guid id, UpdateReviewDto dto, string userId)
         {
-            var review = await _reviewRepository.GetByIdAsync(id);
-            if (review == null) return false;
+            var review = await _repository.GetByIdAsync(id);
+            if (review == null)
+                throw new KeyNotFoundException("Review not found.");
 
-            review.MarkAsHelpful();
-            return (await _reviewRepository.UpdateAsync(review)) != null;
+            // Only review creator can update
+            if (review.ApplicationUserId != userId)
+                throw new UnauthorizedAccessException("Only the creator can update this review.");
+
+            review.Rating = dto.Rating ?? review.Rating;
+            review.Title = dto.Title ?? review.Title;
+            review.Content = dto.Content ?? review.Content;
+
+            var updated = await _repository.UpdateAsync(review);
+            return MapToResponse(updated);
         }
 
-        public async Task<decimal> GetAverageRatingAsync(Guid targetId)
+        public async Task<ReviewResponseDto> DeleteAsync(Guid id, string userId)
         {
-            // Simplified
-            var reviews = await _reviewRepository.GetBySellerIdAsync(targetId); // or Announcement
-            if (reviews.Count == 0) return 0;
-            
-            // Need to handle both Seller and Announcement reviews.
-            // Assuming simplified logic:
-            double sum = 0;
-            foreach (var r in reviews) sum += r.Rating;
-            return (decimal)(sum / reviews.Count);
+            var review = await _repository.GetByIdAsync(id);
+            if (review == null)
+                throw new KeyNotFoundException("Review not found.");
+
+            // Only review creator can delete
+            if (review.ApplicationUserId != userId)
+                throw new UnauthorizedAccessException("Only the creator can delete this review.");
+
+            var deleted = await _repository.DeleteAsync(id);
+            if (!deleted)
+                throw new InvalidOperationException("Failed to delete review.");
+
+            return MapToResponse(review);
         }
 
-        public async Task<bool> SyncToNoSQLAsync(Guid reviewId)
+        private static ReviewResponseDto MapToResponse(Review review)
         {
-            var review = await _reviewRepository.GetByIdAsync(reviewId);
-            if (review == null) return false;
-
-            var doc = new ReviewDocument
+            return new ReviewResponseDto
             {
-                Id = review.Id.ToString(),
-                AnnouncementId = review.AnnouncementId ?? Guid.Empty,
-                SellerId = review.SellerId ?? Guid.Empty,
-                UserId = review.UserId,
+                Id = review.Id,
                 Rating = review.Rating,
-                Comment = review.Comment,
+                Title = review.Title,
+                Content = review.Content,
+                ApplicationUserId = review.ApplicationUserId,
+                AnnouncementId = review.AnnouncementId,
                 CreatedAt = review.CreatedAt
             };
-
-            return await _noSqlRepository.SaveReviewAsync(doc);
         }
     }
 }
+

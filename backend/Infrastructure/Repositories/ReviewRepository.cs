@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using VehiclePlatform.API.Interfaces;
 using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.Infrastructure.Data;
-using VehiclePlatform.API.Interfaces;
 
 namespace VehiclePlatform.API.Infrastructure.Repositories
 {
@@ -18,7 +14,7 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Review> AddAsync(Review review)
+        public async Task<Review> CreateAsync(Review review)
         {
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
@@ -27,20 +23,38 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
 
         public async Task<Review> GetByIdAsync(Guid id)
         {
-            return await _context.Reviews.FindAsync(id);
+            return await _context.Reviews
+                .Include(r => r.CreatedBy)
+                .Include(r => r.Announcement)
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
 
-        public async Task<List<Review>> GetByAnnouncementIdAsync(Guid announcementId)
+        public async Task<List<Review>> GetAllAsync()
         {
             return await _context.Reviews
-                .Where(r => r.AnnouncementId == announcementId)
+                .Include(r => r.CreatedBy)
+                .Include(r => r.Announcement)
+                .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
 
-        public async Task<List<Review>> GetBySellerIdAsync(Guid sellerId)
+        public async Task<List<Review>> GetAllByUserIdAsync(string userId)
         {
             return await _context.Reviews
-                .Where(r => r.SellerId == sellerId)
+                .Where(r => r.ApplicationUserId == userId)
+                .Include(r => r.CreatedBy)
+                .Include(r => r.Announcement)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Review>> GetAllByAnnouncementIdAsync(Guid announcementId)
+        {
+            return await _context.Reviews
+                .Where(r => r.AnnouncementId == announcementId)
+                .Include(r => r.CreatedBy)
+                .Include(r => r.Announcement)
+                .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
 
@@ -62,3 +76,4 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
         }
     }
 }
+

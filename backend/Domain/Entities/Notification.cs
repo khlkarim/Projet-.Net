@@ -1,22 +1,20 @@
-using System;
-using VehiclePlatform.API.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace VehiclePlatform.API.Domain.Entities
 {
     public class Notification
     {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public NotificationType Type { get; set; }
-        public string Title { get; set; }
-        public string Message { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public bool IsRead { get; set; }
-        public string ActionUrl { get; set; }
+        [Key]
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        public void MarkAsRead()
-        {
-            IsRead = true;
-        }
+        [Required, MaxLength(100)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required, MaxLength(1000)]
+        public string Content { get; set; } = string.Empty;
+
+        // Many-to-many with ApplicationUser
+        public virtual ICollection<ApplicationUser> Recipients { get; set; } = new List<ApplicationUser>();
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }
