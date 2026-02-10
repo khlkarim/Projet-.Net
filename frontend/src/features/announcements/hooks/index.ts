@@ -17,15 +17,15 @@ export const useCreateAnnouncement = () => {
 export const useAnnouncement = (id: string) => {
     return useQuery({
         enabled: !!id,
-        queryFn: () => announcementsApi.get(id),
+        queryFn: () => announcementsApi.getById(id),
         queryKey: ['announcements', id],
     });
 };
 
-export const useSearchAnnouncements = (filter: SearchFilter) => {
+export const useGetAnnouncements = () => {
     return useQuery({
-        queryFn: () => announcementsApi.search(filter),
-        queryKey: ['announcements', 'search', filter],
+        queryFn: () => announcementsApi.get(),
+        queryKey: ['announcements'],
     });
 };
 

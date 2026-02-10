@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
@@ -30,6 +28,12 @@ namespace VehiclePlatform.API.Controllers
             var vehicle = await _vehicleService.GetVehicleByIdAsync(id);
             if (vehicle == null) return NotFound();
             return Ok(vehicle);
+        }
+
+        [HttpGet()]
+        public async Task<IActionResult> GetVehicles()
+        {
+            return Ok(await _vehicleService.GetVehiclesAsync());
         }
 
         [HttpPut("{id}")]

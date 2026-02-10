@@ -1,9 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
+using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Controllers
 {
@@ -33,18 +31,26 @@ namespace VehiclePlatform.API.Controllers
             return Ok(announcement);
         }
 
-        [HttpPost("search")]
-        public async Task<IActionResult> Search([FromBody] SearchFilter filter)
+        [HttpGet()]
+        public async Task<IActionResult> GetAnnouncements()
         {
-            var results = await _announcementService.SearchAnnouncementsAsync(filter);
+            var results = await _announcementService.GetAnnouncementsAsync();
             return Ok(results);
         }
 
-        [HttpPut("{id}/publish")]
-        public async Task<IActionResult> Publish(Guid id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAnnouncement(Guid id, AnnouncementDto announcementDto)
         {
-            var result = await _announcementService.PublishAnnouncementAsync(id);
-            if (!result) return BadRequest("Could not publish announcement.");
+            var result = await _announcementService.UpdateAnnouncementAsync(id, announcementDto);
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result  = await _announcementService.DeleteAnnouncementAsync(id);
+
+            if (!result) return BadRequest("Could not update announcement.");
             return Ok();
         }
     }

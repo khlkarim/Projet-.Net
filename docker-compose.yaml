@@ -19,6 +19,20 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: api
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+
 volumes:
   sqlserver_data:
-
+  postgres_data:

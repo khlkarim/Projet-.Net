@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Infrastructure.Data
 {
-    public class VehicleDbContext : DbContext
+    public class VehicleDbContext : IdentityDbContext<ApplicationUser>
     {
         public VehicleDbContext(DbContextOptions<VehicleDbContext> options) : base(options)
         {

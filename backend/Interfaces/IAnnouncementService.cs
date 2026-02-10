@@ -10,10 +10,9 @@ namespace VehiclePlatform.API.Interfaces
     {
         Task<Announcement> CreateAnnouncementAsync(AnnouncementDto announcementDto);
         Task<Announcement> GetAnnouncementByIdAsync(Guid id);
-        Task<List<Announcement>> SearchAnnouncementsAsync(SearchFilter filter);
+        Task<List<Announcement>> GetAnnouncementsAsync();
         Task<Announcement> UpdateAnnouncementAsync(Guid id, AnnouncementDto announcementDto);
         Task<bool> PublishAnnouncementAsync(Guid id);
         Task<bool> DeleteAnnouncementAsync(Guid id);
-        Task<List<Announcement>> GetFeaturedAnnouncementsAsync();
     }
 }

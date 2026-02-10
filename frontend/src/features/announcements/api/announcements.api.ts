@@ -8,7 +8,7 @@ export const announcementsApi = {
         return response.data;
     },
 
-    get: async (id: string): Promise<AnnouncementListing> => {
+    getById: async (id: string): Promise<AnnouncementListing> => {
         const response = await axiosInstance.get<AnnouncementListing>(`/Announcements/${id}`);
         return response.data;
     },
@@ -17,8 +17,8 @@ export const announcementsApi = {
         await axiosInstance.put(`/Announcements/${id}/publish`);
     },
 
-    search: async (filter: SearchFilter): Promise<AnnouncementListing[]> => {
-        const response = await axiosInstance.post<AnnouncementListing[]>('/Announcements/search', filter);
+    get: async (): Promise<AnnouncementListing[]> => {
+        const response = await axiosInstance.get<AnnouncementListing[]>('/api/Announcements');
         return response.data;
     },
 };

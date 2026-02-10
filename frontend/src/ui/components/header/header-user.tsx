@@ -20,10 +20,10 @@ import {
 } from "~/ui/primitives/dropdown-menu";
 
 interface HeaderUserDropdownProps {
-  isDashboard?: boolean;
+  isDashboard: boolean;
   userEmail: string;
   userImage?: null | string;
-  userName?: string;
+  userName: string;
 }
 
 export function HeaderUserDropdown({

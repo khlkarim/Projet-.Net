@@ -1,9 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using VehiclePlatform.API.Domain.Entities;
-using VehiclePlatform.API.Domain.Enums;
 using VehiclePlatform.API.DTOs;
 using VehiclePlatform.API.Interfaces;
+using VehiclePlatform.API.Domain.Enums;
+using VehiclePlatform.API.Domain.Entities;
 
 namespace VehiclePlatform.API.Services
 {
@@ -42,6 +40,11 @@ namespace VehiclePlatform.API.Services
         public async Task<Vehicle> GetVehicleByIdAsync(Guid id)
         {
             return await _vehicleRepository.GetByIdAsync(id);
+        }
+
+        public async Task<List<Vehicle>> GetVehiclesAsync()
+        {
+            return await _vehicleRepository.GetAsync();
         }
 
         public async Task<Vehicle> UpdateVehicleAsync(Guid id, VehicleDto vehicleDto)

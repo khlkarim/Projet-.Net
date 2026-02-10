@@ -27,6 +27,11 @@ namespace VehiclePlatform.API.Infrastructure.Repositories
         {
             return await _context.Vehicles.FindAsync(id);
         }
+        
+        public async Task<List<Vehicle>> GetAsync()
+        {
+            return await _context.Vehicles.ToListAsync();
+        }
 
         public async Task<Vehicle> GetByVINAsync(string vin)
         {

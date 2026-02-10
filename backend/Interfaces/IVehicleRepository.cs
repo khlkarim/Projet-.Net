@@ -8,6 +8,7 @@ namespace VehiclePlatform.API.Interfaces
     {
         Task<Vehicle> AddAsync(Vehicle vehicle);
         Task<Vehicle> GetByIdAsync(Guid id);
+        Task<List<Vehicle>> GetAsync();
         Task<Vehicle> GetByVINAsync(string vin);
         Task<Vehicle> UpdateAsync(Vehicle vehicle);
         Task<bool> DeleteAsync(Guid id);

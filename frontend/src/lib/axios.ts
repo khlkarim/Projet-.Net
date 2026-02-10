@@ -1,15 +1,14 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
-/**
- * Axios instance for all HTTP requests.
- */
-const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+if (!apiUrl) {
+  throw new Error("NEXT_PUBLIC_API_URL is not defined in your environment variables.");
+}
+
+const axiosInstance = axios.create({
+  baseURL: apiUrl,
+  timeout: 5000, // 5 seconds
 });
 
 export default axiosInstance;
+

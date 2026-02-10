@@ -44,9 +44,9 @@ namespace VehiclePlatform.API.Services
             return await _announcementRepository.GetByIdAsync(id);
         }
 
-        public async Task<List<Announcement>> SearchAnnouncementsAsync(SearchFilter filter)
+        public async Task<List<Announcement>> GetAnnouncementsAsync()
         {
-            return await _announcementRepository.SearchAsync(filter);
+            return await _announcementRepository.GetAsync();
         }
 
         public async Task<Announcement> UpdateAnnouncementAsync(Guid id, AnnouncementDto dto)
@@ -75,13 +75,6 @@ namespace VehiclePlatform.API.Services
         public async Task<bool> DeleteAnnouncementAsync(Guid id)
         {
             return await _announcementRepository.DeleteAsync(id);
-        }
-
-        public async Task<List<Announcement>> GetFeaturedAnnouncementsAsync()
-        {
-             // Mocked implementation as repository specific method wasn't added
-             // Logic would be to fetch where IsFeatured == true
-             return new List<Announcement>();
         }
     }
 }

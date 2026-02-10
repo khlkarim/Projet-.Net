@@ -102,7 +102,7 @@ export default function HomePage() {
                         text-transparent
                       `}
                     >
-                      Premium Vehicles
+                      Everything Tech
                     </span>
                   </h1>
                   <p
@@ -111,8 +111,8 @@ export default function HomePage() {
                       md:text-xl
                     `}
                   >
-                    Discover quality vehicles at competitive prices, with fast
-                    delivery and exceptional customer service.
+                    Discover premium products at competitive prices, with fast
+                    shipping and exceptional customer service.
                   </p>
                 </div>
                 <div
@@ -121,14 +121,14 @@ export default function HomePage() {
                     sm:flex-row
                   `}
                 >
-                  <Link href="/vehicles">
+                  <Link href="/products">
                     <Button
                       className={`
                         h-12 gap-1.5 px-8 transition-colors duration-200
                       `}
                       size="lg"
                     >
-                      Browse Vehicles <ArrowRight className="h-4 w-4" />
+                      Shop Now <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Link href="/showcase">
@@ -288,11 +288,11 @@ export default function HomePage() {
                   md:text-4xl
                 `}
               >
-                Featured Vehicles
+                Featured Products
               </h2>
               <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
               <p className="mt-4 max-w-2xl text-center text-muted-foreground">
-                Check out our latest and most popular vehicles
+                Check out our latest and most popular tech items
               </p>
             </div>
             <div
@@ -308,9 +308,9 @@ export default function HomePage() {
               ))}
             </div>
             <div className="mt-10 flex justify-center">
-              <Link href="/vehicles">
+              <Link href="/products">
                 <Button className="group h-12 px-8" size="lg" variant="outline">
-                  View All Vehicles
+                  View All Products
                   <ArrowRight
                     className={`
                       ml-2 h-4 w-4 transition-transform duration-300
@@ -477,13 +477,13 @@ export default function HomePage() {
                       Sign Up Now
                     </Button>
                   </Link>
-                  <Link href="/vehicles">
+                  <Link href="/products">
                     <Button
                       className="h-12 px-8 transition-colors duration-200"
                       size="lg"
                       variant="outline"
                     >
-                      Browse Vehicles
+                      Browse Products
                     </Button>
                   </Link>
                 </div>
