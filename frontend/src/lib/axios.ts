@@ -8,6 +8,9 @@ if (!apiUrl) {
 const axiosInstance = axios.create({
   baseURL: apiUrl,
   timeout: 5000, // 5 seconds
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 export default axiosInstance;

@@ -1,14 +1,20 @@
-import { SYSTEM_CONFIG } from "~/app";
-import { getCurrentUserOrRedirect } from "~/lib/auth";
+"use client";
 
-import { SignInPageClient } from "./page.client";
+import { useEffect } from 'react';
+import { useUsers } from '~/features/users/hooks';
 
-export default async function SignInPage() {
-  await getCurrentUserOrRedirect(
-    undefined,
-    SYSTEM_CONFIG.redirectAfterSignIn,
-    true,
-  );
+export default function SignInPage() {
+  const {
+    data: users,
+    isPending,
+    isError,
+    error
+  } = useUsers();
 
-  return <SignInPageClient />;
+  console.log("data: ", users);
+  console.log("isPending: ", isPending);
+  console.log("isError: ", isError);
+  console.log("error: ", error);
+
+  return <></>;
 }

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VehiclePlatform.API.DTOs;
 
 [ApiController]
 [Route("api/auth")]
@@ -19,23 +20,28 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(string email, string password)
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        var user = new ApplicationUser { UserName = email, Email = email };
+        var user = new ApplicationUser { 
+            UserName = registerDto.UserName, 
+            FirstName = registerDto.FirstName,
+            LastName = registerDto.LastName,
+            Email = registerDto.Email 
+        };
 
-        var result = await _userManager.CreateAsync(user, password);
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
 
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        return Ok("User created");
+        return Ok(new { status = "User created" });
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(string email, string password)
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+        if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
             return Unauthorized();
 
         var token = GenerateJwt(user);

@@ -1,32 +1,24 @@
 import { z } from 'zod';
 
-export const enableTwoFactorRequestSchema = z.object({
-    password: z.string().min(1, "Password is required"),
+export const loginRequestSchema = z.object({
+    email: z.string().email(),
+    password: z.string()
 });
+export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
-export type EnableTwoFactorRequest = z.infer<typeof enableTwoFactorRequestSchema>;
-
-export const enableTwoFactorResponseSchema = z.object({
-    backupCodes: z.array(z.string()),
-    totpURI: z.string().url(),
+export const loginResponseSchema = z.object({
+    token: z.string()
 });
+export type LoginResponse = z.infer<typeof loginResponseSchema>;
 
-export type EnableTwoFactorResponse = z.infer<typeof enableTwoFactorResponseSchema>;
-
-export const disableTwoFactorRequestSchema = z.object({
-    password: z.string().min(1, "Password is required"),
+export const registerRequestSchema = z.object({
+    username: z.string(),
+    email: z.string().email(),
+    password: z.string()
 });
+export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 
-export type DisableTwoFactorRequest = z.infer<typeof disableTwoFactorRequestSchema>;
-
-export const verifyTwoFactorRequestSchema = z.object({
-    code: z.string().min(1, "Code is required"),
+export const registerResponseSchema = z.object({
+    status: z.string()
 });
-
-export type VerifyTwoFactorRequest = z.infer<typeof verifyTwoFactorRequestSchema>;
-
-export const loginSocialRequestSchema = z.object({
-    provider: z.string().min(1), // e.g., "github", "google"
-});
-
-export type LoginSocialRequest = z.infer<typeof loginSocialRequestSchema>;
+export type RegisterResponse = z.infer<typeof registerResponseSchema>;

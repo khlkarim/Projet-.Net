@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 
 public class ApplicationUser : IdentityUser
 {
-    // Extend later if needed
-    // public string FullName { get; set; }
+  public string FirstName { get; set; } = string.Empty;
+  public string LastName { get; set; } = string.Empty;
 }
-

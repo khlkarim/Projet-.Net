@@ -62,10 +62,12 @@
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
+    "toast": "^0.5.4",
     "uploadthing": "^7.6.0",
     "uuid": "^11.1.0",
     "vaul": "^1.1.2",
-    "zod": "^3.24.4"
+    "zod": "^3.24.4",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

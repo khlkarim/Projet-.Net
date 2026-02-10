@@ -1,8 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using VehiclePlatform.API.DTOs;
-using VehiclePlatform.API.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace VehiclePlatform.API.Controllers
 {
@@ -10,42 +9,86 @@ namespace VehiclePlatform.API.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UsersController(IUserService userService)
+        public UsersController(UserManager<ApplicationUser> userManager)
         {
-            _userService = userService;
+            _userManager = userManager;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(UserDto userDto)
+        // GET: api/users
+        [HttpGet]
+        public async Task<IActionResult> GetUsers()
         {
-            var user = await _userService.RegisterAsync(userDto);
-            return Ok(user);
+            var users = await _userManager.Users
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    UserName = u.UserName,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName
+                })
+                .ToListAsync();
+
+            return Ok(users);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(string email, string password)
-        {
-            var token = await _userService.LoginAsync(email, password);
-            if (token == null) return Unauthorized();
-            return Ok(new { Token = token });
-        }
-
-        [HttpGet("{id}")]
+        // GET: api/users/{id}
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return NotFound();
+
+            var dto = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            };
+
+            return Ok(dto);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, UserDto userDto)
+        // PUT: api/users/{id}
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserDto userDto)
         {
-            var user = await _userService.UpdateUserAsync(id, userDto);
-            if (user == null) return NotFound();
-            return Ok(user);
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return NotFound();
+
+            // Update allowed fields only
+            user.UserName = userDto.UserName;
+            user.Email = userDto.Email;
+            user.FirstName = userDto.FirstName;
+            user.LastName = userDto.LastName;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(userDto);
+        }
+
+        // DELETE: api/users/{id}
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return NoContent();
         }
     }
 }
+
