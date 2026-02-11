@@ -17,9 +17,9 @@ export default function SignUpPage() {
   const registerMutation = useRegister();
 
   const [formData, setFormData] = React.useState({
-    username: "",
-    firstname: "",
-    lastname: "",
+    userName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -54,30 +54,30 @@ export default function SignUpPage() {
           <form id="signup-form" onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="firstname">First Name</Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
-                    id="firstname"
-                    name="firstname"
+                    id="firstName"
+                    name="firstName"
                     placeholder="John"
                     className="pl-10"
-                    value={formData.firstname}
+                    value={formData.firstName}
                     onChange={handleChange}
                     required
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastname">Last Name</Label>
+                <Label htmlFor="lastName">Last Name</Label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
-                    id="lastname"
-                    name="lastname"
+                    id="lastName"
+                    name="lastName"
                     placeholder="Doe"
                     className="pl-10"
-                    value={formData.lastname}
+                    value={formData.lastName}
                     onChange={handleChange}
                     required
                   />
@@ -86,15 +86,15 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="userName">Username</Label>
               <div className="relative">
                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input
-                  id="username"
-                  name="username"
+                  id="userName"
+                  name="userName"
                   placeholder="johndoe123"
                   className="pl-10"
-                  value={formData.username}
+                  value={formData.userName}
                   onChange={handleChange}
                   required
                 />

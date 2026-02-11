@@ -3,7 +3,7 @@
 import * as React from "react";
 import { SearchIcon, SlidersHorizontalIcon } from "lucide-react";
 
-import { useAnnouncements } from "~/features/announcements/hooks";
+import { useAnnouncements } from "~/features/announcements/hooks/announcements.hooks";
 import { AnnouncementType, VehicleType } from "~/types/enums";
 import { AnnouncementCard } from "./_components/announcement-card";
 import { Button } from "~/ui/primitives/button";
@@ -18,7 +18,7 @@ export default function AnnouncementsPage() {
     const { data: announcements, isPending, isError } = useAnnouncements();
 
     const [searchQuery, setSearchQuery] = React.useState("");
-    const [selectedType, setSelectedType] = React.useState<AnnouncementType | "ALL">("ALL");
+    const [selectedType, setSelectedType] = React.useState<AnnouncementType | 0>(0);
     const [selectedVehicle, setSelectedVehicle] = React.useState<VehicleType | "ALL">("ALL");
     const [showFilters, setShowFilters] = React.useState(false);
 
@@ -31,7 +31,7 @@ export default function AnnouncementsPage() {
                 a.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 a.model.toLowerCase().includes(searchQuery.toLowerCase());
 
-            const matchesType = selectedType === "ALL" || a.announcementType === selectedType;
+            const matchesType = selectedType === 0 || a.announcementType === selectedType;
             const matchesVehicle = selectedVehicle === "ALL" || a.vehicleType === selectedVehicle;
 
             return matchesSearch && matchesType && matchesVehicle;
@@ -70,7 +70,7 @@ export default function AnnouncementsPage() {
                         >
                             <SlidersHorizontalIcon className="size-4" />
                             Filters
-                            {(selectedType !== "ALL" || selectedVehicle !== "ALL") && (
+                            {(selectedType !== 0 || selectedVehicle !== "ALL") && (
                                 <Badge variant="secondary" className="ml-1 px-1 py-0 text-[10px]">
                                     {[selectedType, selectedVehicle].filter(v => v !== "ALL").length}
                                 </Badge>
@@ -87,10 +87,10 @@ export default function AnnouncementsPage() {
                                         <h4 className="text-sm font-medium">Announcement Type</h4>
                                         <div className="flex flex-wrap gap-2">
                                             <Button
-                                                variant={selectedType === "ALL" ? "default" : "outline"}
+                                                variant={selectedType === 0 ? "default" : "outline"}
                                                 size="sm"
                                                 className="rounded-full"
-                                                onClick={() => setSelectedType("ALL")}
+                                                onClick={() => setSelectedType(0)}
                                             >
                                                 All
                                             </Button>
@@ -139,7 +139,7 @@ export default function AnnouncementsPage() {
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => {
-                                            setSelectedType("ALL");
+                                            setSelectedType(0);
                                             setSelectedVehicle("ALL");
                                         }}
                                     >

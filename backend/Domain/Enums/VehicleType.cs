@@ -9,6 +9,7 @@ namespace VehiclePlatform.API.Domain.Enums
         Convertible,
         Truck,
         Van,
-        Motorcycle
+        Motorcycle,
+        Wagon
     }
 }

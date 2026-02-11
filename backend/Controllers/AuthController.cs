@@ -58,6 +58,9 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwt(user);
 
+        Console.WriteLine(user);
+        Console.WriteLine("Username= " + user.UserName);
+
         return Ok(new LoginResponseDto { 
             User = new ApplicationUserResponseDto {
                 Id = user.Id,

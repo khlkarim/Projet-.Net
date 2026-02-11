@@ -34,6 +34,9 @@ export const reviewResponseSchema = z.object({
     content: z.string(),
     applicationUserId: z.string(),
     announcementId: z.string(),
-    createdAt: z.string().datetime(),
+    createdAt: z.string().refine(
+        (val) => !isNaN(Date.parse(val)),
+        { message: "Invalid datetime format" }
+    ),
 });
 export type ReviewResponse = z.infer<typeof reviewResponseSchema>;

@@ -4,11 +4,12 @@ import * as React from "react";
 
 import type { Notification } from "~/ui/components/notifications/notification-center";
 
-import { mockNotifications } from "~/ui/components/notifications/notifications.mock";
 import { Button } from "~/ui/primitives/button";
 import { Separator } from "~/ui/primitives/separator";
+import { withAuth } from "~/features/auth/components/with-auth";
+import { mockNotifications } from "~/ui/components/notifications/notifications.mock";
 
-export default function NotificationsPage() {
+function NotificationsPage() {
   const [notifications, setNotifications] = React.useState<Notification[]>(
     () => mockNotifications,
   );
@@ -77,3 +78,5 @@ export default function NotificationsPage() {
     </div>
   );
 }
+
+export default withAuth(NotificationsPage);

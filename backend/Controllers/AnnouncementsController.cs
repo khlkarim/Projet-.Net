@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 namespace VehiclePlatform.API.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class AnnouncementsController : ControllerBase
     {
@@ -20,6 +19,7 @@ namespace VehiclePlatform.API.Controllers
 
         // POST: api/Announcements
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromForm] CreateAnnouncementDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -51,6 +51,7 @@ namespace VehiclePlatform.API.Controllers
 
         // GET: api/Announcements/user
         [HttpGet("user")]
+        [Authorize]
         public async Task<IActionResult> GetAllByCurrentUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -63,6 +64,7 @@ namespace VehiclePlatform.API.Controllers
 
         // PUT: api/Announcements/{id}
         [HttpPut("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateAnnouncementDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -86,6 +88,7 @@ namespace VehiclePlatform.API.Controllers
 
         // DELETE: api/Announcements/{id}
         [HttpDelete("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

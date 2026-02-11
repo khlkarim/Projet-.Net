@@ -14,9 +14,9 @@ export const loginResponseSchema = z.object({
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 
 export const registerRequestSchema = z.object({
-    username: z.string(),
-    firstname: z.string(),
-    lastname: z.string(),
+    userName: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
     email: z.string().email(),
     password: z.string()
 });

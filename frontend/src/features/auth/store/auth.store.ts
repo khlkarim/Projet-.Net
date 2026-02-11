@@ -16,7 +16,7 @@ export interface AuthActions {
   login: (data: LoginRequest) => Promise<LoginResponse>;
   register: (data: RegisterRequest) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
-  update: (user: User) => void;
+  update: (user: UserUpdateRequest) => void;
   setHasHydrated: (state: boolean) => void;
 }
 

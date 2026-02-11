@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { useAnnouncement } from "~/features/announcements/hooks";
+import { useAnnouncement } from "~/features/announcements/hooks/announcements.hooks";
 import { AnnouncementReservations } from "../_components/announcement-reservations";
 import { AnnouncementReviews } from "../_components/announcement-reviews";
 import { Button } from "~/ui/primitives/button";

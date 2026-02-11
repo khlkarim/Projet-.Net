@@ -9,7 +9,6 @@ namespace VehiclePlatform.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -65,6 +64,7 @@ namespace VehiclePlatform.API.Controllers
          * ============================ */
         [HttpPatch("{id}")]
         [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB
+        [Authorize]
         public async Task<ActionResult<ApplicationUserResponseDto>> UpdateUser(
             string id,
             [FromForm] UpdateApplicationUserDto dto)
@@ -118,6 +118,7 @@ namespace VehiclePlatform.API.Controllers
          * DELETE: api/users/{id}
          * ============================ */
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);

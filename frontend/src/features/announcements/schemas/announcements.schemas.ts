@@ -1,5 +1,4 @@
 import { z } from 'zod';
-
 import { AnnouncementType, FuelType, TransmissionType, VehicleType } from '~/types/enums';
 
 /* ================================
@@ -69,8 +68,14 @@ export const announcementResponseSchema = z.object({
     transmission: z.nativeEnum(TransmissionType),
     color: z.string(),
     createdByUserId: z.string(),
-    createdAt: z.string().datetime(),
-    updatedAt: z.string().datetime(),
+    createdAt: z.string().refine(
+        (val) => !isNaN(Date.parse(val)),
+        { message: "Invalid datetime format" }
+    ),
+    updatedAt: z.string().refine(
+        (val) => !isNaN(Date.parse(val)),
+        { message: "Invalid datetime format" }
+    ),
     files: z.array(announcementFileSchema),
 });
 export type AnnouncementResponse = z.infer<typeof announcementResponseSchema>;

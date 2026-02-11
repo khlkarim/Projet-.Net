@@ -19,6 +19,9 @@ export const notificationResponseSchema = z.object({
     title: z.string(),
     content: z.string(),
     recipients: z.array(z.string()),
-    createdAt: z.string().datetime()
+    createdAt: z.string().refine(
+        (val) => !isNaN(Date.parse(val)),
+        { message: "Invalid datetime format" }
+    ),
 });
 export type NotificationResponse = z.infer<typeof notificationResponseSchema>

@@ -16,9 +16,9 @@ export function PersonalInfoTab() {
     const [isUpdating, setIsUpdating] = React.useState(false);
 
     const [formData, setFormData] = React.useState({
-        username: user?.username || "",
-        firstname: user?.firstname || "",
-        lastname: user?.lastname || "",
+        userName: user?.userName || "",
+        firstName: user?.firstName || "",
+        lastName: user?.lastName || "",
         email: user?.email || "",
     });
 
@@ -55,14 +55,14 @@ export function PersonalInfoTab() {
                 <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
-                            <Label htmlFor="username" className="flex items-center gap-2">
+                            <Label htmlFor="userName" className="flex items-center gap-2">
                                 <FingerprintIcon className="size-3.5 text-muted-foreground" />
                                 Username
                             </Label>
                             <Input
-                                id="username"
-                                name="username"
-                                value={formData.username}
+                                id="userName"
+                                name="userName"
+                                value={formData.userName}
                                 onChange={handleChange}
                                 placeholder="johndoe"
                                 required
@@ -89,28 +89,28 @@ export function PersonalInfoTab() {
 
                     <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
-                            <Label htmlFor="firstname" className="flex items-center gap-2">
+                            <Label htmlFor="firstName" className="flex items-center gap-2">
                                 <UserIcon className="size-3.5 text-muted-foreground" />
                                 First Name
                             </Label>
                             <Input
-                                id="firstname"
-                                name="firstname"
-                                value={formData.firstname}
+                                id="firstName"
+                                name="firstName"
+                                value={formData.firstName}
                                 onChange={handleChange}
                                 placeholder="John"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="lastname" className="flex items-center gap-2">
+                            <Label htmlFor="lastName" className="flex items-center gap-2">
                                 <UserIcon className="size-3.5 text-muted-foreground" />
                                 Last Name
                             </Label>
                             <Input
-                                id="lastname"
-                                name="lastname"
-                                value={formData.lastname}
+                                id="lastName"
+                                name="lastName"
+                                value={formData.lastName}
                                 onChange={handleChange}
                                 placeholder="Doe"
                                 required

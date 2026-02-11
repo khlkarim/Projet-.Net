@@ -5,8 +5,6 @@ namespace VehiclePlatform.API.Domain.Enums
         Petrol,
         Diesel,
         Electric,
-        Hybrid,
-        PlugInHybrid,
-        LPG
+        Hybrid
     }
 }

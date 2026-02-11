@@ -1,65 +1,114 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Identity;
+using VehiclePlatform.API.Domain.Entities;
 using VehiclePlatform.API.Infrastructure.Data;
+using VehiclePlatform.API.Infrastructure.Data.Seeders;
 using VehiclePlatform.API.Infrastructure.Repositories;
 using VehiclePlatform.API.Interfaces;
 using VehiclePlatform.API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using VehiclePlatform.API.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Enable CORS
+// -------------------------------------------------------
+// Configuration Validation (Fail Fast)
+// -------------------------------------------------------
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key is not configured.");
+
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]
+    ?? throw new InvalidOperationException("JWT Issuer is not configured.");
+
+var jwtAudience = builder.Configuration["Jwt:Audience"]
+    ?? throw new InvalidOperationException("JWT Audience is not configured.");
+
+// -------------------------------------------------------
+// Database
+// -------------------------------------------------------
+
+builder.Services.AddDbContext<VehicleDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("DefaultConnection is not configured.")
+    ));
+
+// -------------------------------------------------------
+// Identity (API-focused setup)
+// -------------------------------------------------------
+
+builder.Services
+    .AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<VehicleDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+// -------------------------------------------------------
+// Authentication (JWT)
+// -------------------------------------------------------
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)
+            ),
+
+            ClockSkew = TimeSpan.Zero // remove default 5 min tolerance
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// -------------------------------------------------------
+// CORS
+// -------------------------------------------------------
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhostFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000") // frontend origin
-            .AllowAnyHeader()                     // allow headers like Content-Type, Authorization
-            .AllowAnyMethod()                    // allow GET, POST, PUT, DELETE, etc.
-            .AllowCredentials(); // important if using cookies or JWT in header
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
-// Set up auth services
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<VehicleDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-        )
-    };
-});
-
-builder.Services.AddAuthorization();
+// -------------------------------------------------------
+// Controllers
+// -------------------------------------------------------
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// -------------------------------------------------------
+// Swagger (JWT Enabled)
+// -------------------------------------------------------
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
-    // Add JWT auth definition
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SupportNonNullableReferenceTypes();
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -67,47 +116,74 @@ builder.Services.AddSwaggerGen(c => {
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' [space] and then your valid JWT token."
+        Description = "Enter 'Bearer {your JWT token}'."
     });
 
-    // Apply JWT auth globally (optional)
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme 
+            new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference 
-                { 
+                Reference = new OpenApiReference
+                {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer" 
+                    Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
-
-    c.SupportNonNullableReferenceTypes();
 });
 
-// Database Configuration
-builder.Services.AddDbContext<VehicleDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// -------------------------------------------------------
+// Health Checks (Production Good Practice)
+// -------------------------------------------------------
 
+builder.Services.AddHealthChecks();
+
+// -------------------------------------------------------
 // Repositories
+// -------------------------------------------------------
+
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
+// -------------------------------------------------------
 // Services
+// -------------------------------------------------------
+
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// -------------------------------------------------------
+// Build App
+// -------------------------------------------------------
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// -------------------------------------------------------
+// Ensure Upload Directory Exists
+// -------------------------------------------------------
+
+var uploadsPath = Path.Combine(
+    builder.Environment.ContentRootPath,
+    "wwwroot",
+    "uploads"
+);
+
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
+// -------------------------------------------------------
+// Middleware Pipeline
+// -------------------------------------------------------
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -116,19 +192,33 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Use CORS
 app.UseCors("AllowLocalhostFrontend");
+
+// Static files BEFORE controllers
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
-app.UseStaticFiles(new StaticFileOptions
+// -------------------------------------------------------
+// Database Seeding (Development Only)
+// -------------------------------------------------------
+
+if (app.Environment.IsDevelopment())
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads")),
-    RequestPath = "/uploads"
-});
+    using var scope = app.Services.CreateScope();
+    await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
+
+// -------------------------------------------------------
+// Run
+// -------------------------------------------------------
 
 app.Run();
