@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { reviewsApi } from '../api/reviews.api';
 import {
     CreateReviewRequest,
@@ -12,18 +13,18 @@ import {
 export const reviewKeys = {
     all: ['reviews'] as const,
 
-    lists: () => [...reviewKeys.all, 'list'] as const,
-
-    list: (scope: 'all' | 'user') =>
-        [...reviewKeys.lists(), scope] as const,
-
-    details: () => [...reviewKeys.all, 'detail'] as const,
+    byAnnouncement: (announcementId: string) =>
+        [...reviewKeys.all, 'announcement', announcementId] as const,
 
     detail: (id: string) =>
         [...reviewKeys.details(), id] as const,
 
-    byAnnouncement: (announcementId: string) =>
-        [...reviewKeys.all, 'announcement', announcementId] as const,
+    details: () => [...reviewKeys.all, 'detail'] as const,
+
+    list: (scope: 'all' | 'user') =>
+        [...reviewKeys.lists(), scope] as const,
+
+    lists: () => [...reviewKeys.all, 'list'] as const,
 };
 
 /* ================================
@@ -32,28 +33,28 @@ export const reviewKeys = {
 
 export const useReviews = () =>
     useQuery({
-        queryKey: reviewKeys.list('all'),
         queryFn: reviewsApi.getAll,
+        queryKey: reviewKeys.list('all'),
     });
 
 export const useMyReviews = () =>
     useQuery({
-        queryKey: reviewKeys.list('user'),
         queryFn: reviewsApi.getAllForCurrentUser,
+        queryKey: reviewKeys.list('user'),
     });
 
 export const useReview = (id: string) =>
     useQuery({
-        queryKey: reviewKeys.detail(id),
-        queryFn: () => reviewsApi.getById(id),
         enabled: !!id,
+        queryFn: () => reviewsApi.getById(id),
+        queryKey: reviewKeys.detail(id),
     });
 
 export const useReviewsByAnnouncement = (announcementId: string) =>
     useQuery({
-        queryKey: reviewKeys.byAnnouncement(announcementId),
-        queryFn: () => reviewsApi.getAllByAnnouncement(announcementId),
         enabled: !!announcementId,
+        queryFn: () => reviewsApi.getAllByAnnouncement(announcementId),
+        queryKey: reviewKeys.byAnnouncement(announcementId),
     });
 
 /* ================================
@@ -83,11 +84,11 @@ export const useUpdateReview = () => {
 
     return useMutation({
         mutationFn: ({
-            id,
             data,
+            id,
         }: {
-            id: string;
             data: UpdateReviewRequest;
+            id: string;
         }) => reviewsApi.update(id, data),
 
         onSuccess: (updated) => {

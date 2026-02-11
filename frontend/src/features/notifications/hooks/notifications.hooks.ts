@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { notificationsApi } from '../api/notifications.api';
 import {
     CreateNotificationRequest,
@@ -12,15 +13,15 @@ import {
 export const notificationKeys = {
     all: ['notifications'] as const,
 
-    lists: () => [...notificationKeys.all, 'list'] as const,
+    detail: (id: string) =>
+        [...notificationKeys.details(), id] as const,
+
+    details: () => [...notificationKeys.all, 'detail'] as const,
 
     list: (scope: 'all' | 'user') =>
         [...notificationKeys.lists(), scope] as const,
 
-    details: () => [...notificationKeys.all, 'detail'] as const,
-
-    detail: (id: string) =>
-        [...notificationKeys.details(), id] as const,
+    lists: () => [...notificationKeys.all, 'list'] as const,
 };
 
 /* ================================
@@ -29,21 +30,21 @@ export const notificationKeys = {
 
 export const useNotifications = () =>
     useQuery({
-        queryKey: notificationKeys.list('all'),
         queryFn: notificationsApi.getAll,
+        queryKey: notificationKeys.list('all'),
     });
 
 export const useMyNotifications = () =>
     useQuery({
-        queryKey: notificationKeys.list('user'),
         queryFn: notificationsApi.getAllForCurrentUser,
+        queryKey: notificationKeys.list('user'),
     });
 
 export const useNotification = (id: string) =>
     useQuery({
-        queryKey: notificationKeys.detail(id),
-        queryFn: () => notificationsApi.getById(id),
         enabled: !!id,
+        queryFn: () => notificationsApi.getById(id),
+        queryKey: notificationKeys.detail(id),
     });
 
 /* ================================
@@ -69,11 +70,11 @@ export const useUpdateNotification = () => {
 
     return useMutation({
         mutationFn: ({
-            id,
             data,
+            id,
         }: {
-            id: string;
             data: UpdateNotificationRequest;
+            id: string;
         }) => notificationsApi.update(id, data),
 
         onSuccess: (updated) => {

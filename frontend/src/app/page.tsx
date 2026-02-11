@@ -2,9 +2,10 @@ import { ArrowRight, Clock, ShoppingBag, Star, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { FeaturedAnnouncements } from "~/app/_components/featured-announcements";
+import { RecentReviews } from "~/app/_components/recent-reviews";
+import { VehicleType } from "~/types/enums";
 import { HeroBadge } from "~/ui/components/hero-badge";
-import { ProductCard } from "~/ui/components/product-card";
-import { TestimonialsSection } from "~/ui/components/testimonials/testimonials-with-marquee";
 import { Button } from "~/ui/primitives/button";
 import {
   Card,
@@ -14,32 +15,82 @@ import {
   CardTitle,
 } from "~/ui/primitives/card";
 
-import { categories, featuredProductsHomepage, testimonials } from "./mocks";
+const vehicleTypeMeta: Record<
+  keyof typeof VehicleType,
+  { label: string; image: string }
+> = {
+  CONVERTIBLE: {
+    label: "Convertible",
+    image:
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=60",
+  },
+  COUPE: {
+    label: "Coupe",
+    image:
+      "https://images.unsplash.com/photo-1493238792000-8113da705763?w=800&auto=format&fit=crop&q=60",
+  },
+  HATCHBACK: {
+    label: "Hatchback",
+    image:
+      "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800&auto=format&fit=crop&q=60",
+  },
+  MOTORCYCLE: {
+    label: "Motorcycle",
+    image:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop&q=60",
+  },
+  SEDAN: {
+    label: "Sedan",
+    image:
+      "https://images.unsplash.com/photo-1549924231-f129b911e442?w=800&auto=format&fit=crop&q=60",
+  },
+  SUV: {
+    label: "SUV",
+    image:
+      "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&auto=format&fit=crop&q=60",
+  },
+  TRUCK: {
+    label: "Truck",
+    image:
+      "https://images.unsplash.com/photo-1597007030730-9d6a4c8b1e5f?w=800&auto=format&fit=crop&q=60",
+  },
+  VAN: {
+    label: "Van",
+    image:
+      "https://images.unsplash.com/photo-1605559424843-9e4c228b0c1e?w=800&auto=format&fit=crop&q=60",
+  },
+  WAGON: {
+    label: "Wagon",
+    image:
+      "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?w=800&auto=format&fit=crop&q=60",
+  },
+};
 
+// Mocks for static sections
 const featuresWhyChooseUs = [
   {
     description:
-      "Free shipping on all orders over $50. Fast and reliable delivery to your doorstep.",
-    icon: <Truck className="h-6 w-6 text-primary" />,
-    title: "Free Shipping",
+      "We verify every vehicle and seller to ensure a safe and trustworthy marketplace.",
+    icon: <Star className="h-6 w-6 text-primary" />,
+    title: "Verified Listings",
   },
   {
     description:
-      "Your payment information is always safe and secure with us. We use industry-leading encryption.",
+      "Our platform uses secure payment gateways to protect your financial information.",
     icon: <ShoppingBag className="h-6 w-6 text-primary" />,
-    title: "Secure Checkout",
+    title: "Secure Transactions",
   },
   {
     description:
-      "Our customer support team is always available to help with any questions or concerns.",
+      "Our support team is available around the clock to assist with any inquiries.",
     icon: <Clock className="h-6 w-6 text-primary" />,
     title: "24/7 Support",
   },
   {
     description:
-      "We stand behind the quality of every product we sell. 30-day money-back guarantee.",
-    icon: <Star className="h-6 w-6 text-primary" />,
-    title: "Quality Guarantee",
+      "Wide range of vehicles from verified sellers at competitive market prices.",
+    icon: <Truck className="h-6 w-6 text-primary" />,
+    title: "Best Value",
   },
 ];
 
@@ -80,8 +131,6 @@ export default function HomePage() {
             >
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
-                  <HeroBadge />
-
                   <h1
                     className={`
                       font-display text-4xl leading-tight font-bold
@@ -91,14 +140,14 @@ export default function HomePage() {
                       lg:leading-[1.1]
                     `}
                   >
-                    Your One-Stop Shop for{" "}
+                    Find Your Dream{" "}
                     <span
                       className={`
                         bg-gradient-to-r from-primary to-primary/70 bg-clip-text
                         text-transparent
                       `}
                     >
-                      Everything Tech
+                      Ride Today
                     </span>
                   </h1>
                   <p
@@ -107,8 +156,8 @@ export default function HomePage() {
                       md:text-xl
                     `}
                   >
-                    Discover premium products at competitive prices, with fast
-                    shipping and exceptional customer service.
+                    Discover the best deals on cars, motorcycles, and more.
+                    Verified sellers, transparent pricing, and secure transactions.
                   </p>
                 </div>
                 <div
@@ -117,39 +166,25 @@ export default function HomePage() {
                     sm:flex-row
                   `}
                 >
-                  <Link href="/products">
+                  <Link href="/announcements">
                     <Button
                       className={`
                         h-12 gap-1.5 px-8 transition-colors duration-200
                       `}
                       size="lg"
                     >
-                      Shop Now <ArrowRight className="h-4 w-4" />
+                      Browse Announcements <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href="/showcase">
+                  <Link href="/account">
                     <Button
                       className="h-12 px-8 transition-colors duration-200"
                       size="lg"
                       variant="outline"
                     >
-                      View Showcase
+                      Make an Announcement
                     </Button>
                   </Link>
-                </div>
-                <div
-                  className={`
-                    flex flex-wrap gap-5 text-sm text-muted-foreground
-                  `}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Truck className="h-5 w-5 text-primary/70" />
-                    <span>Free shipping over $50</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-5 w-5 text-primary/70" />
-                    <span>24/7 Customer Support</span>
-                  </div>
                 </div>
               </div>
               <div
@@ -166,12 +201,12 @@ export default function HomePage() {
                   `}
                 />
                 <Image
-                  alt="Shopping experience"
+                  alt="Luxury Car"
                   className="object-cover"
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  src="https://images.unsplash.com/photo-1624767735494-1929dc24ad43?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+                  src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
                 />
               </div>
             </div>
@@ -205,116 +240,63 @@ export default function HomePage() {
                   md:text-4xl
                 `}
               >
-                Shop by Category
+                Browse by Type
               </h2>
               <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
               <p className="mt-4 max-w-2xl text-center text-muted-foreground">
-                Find the perfect device for your needs from our curated
-                collections
+                Find the perfect vehicle for your needs from our wide selection
               </p>
             </div>
-            <div
-              className={`
-                grid grid-cols-2 gap-4
-                md:grid-cols-4 md:gap-6
-              `}
-            >
-              {categories.map((category) => (
-                <Link
-                  aria-label={`Browse ${category.name} products`}
-                  className={`
-                    group relative flex flex-col space-y-4 overflow-hidden
-                    rounded-2xl border bg-card shadow transition-all
-                    duration-300
-                    hover:shadow-lg
-                  `}
-                  href={`/products?category=${category.name.toLowerCase()}`}
-                  key={category.name}
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <div
-                      className={`
-                        absolute inset-0 z-10 bg-gradient-to-t
-                        from-background/80 to-transparent
-                      `}
-                    />
-                    <Image
-                      alt={category.name}
-                      className={`
-                        object-cover transition duration-300
-                        group-hover:scale-105
-                      `}
-                      fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                      src={category.image}
-                    />
-                  </div>
-                  <div className="relative z-20 -mt-6 p-4">
-                    <div className="mb-1 text-lg font-medium">
-                      {category.name}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {category.productCount} products
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Featured Products */}
-        <section
-          className={`
-            bg-muted/50 py-12
-            md:py-16
-          `}
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <div className="mb-8 flex flex-col items-center text-center">
-              <h2
-                className={`
-                  font-display text-3xl leading-tight font-bold tracking-tight
-                  md:text-4xl
-                `}
-              >
-                Featured Products
-              </h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-4 max-w-2xl text-center text-muted-foreground">
-                Check out our latest and most popular tech items
-              </p>
-            </div>
             <div
-              className={`
-                grid grid-cols-1 gap-6
-                sm:grid-cols-2
-                lg:grid-cols-3
-                xl:grid-cols-4
-              `}
+              className="
+    grid grid-cols-2 gap-4
+    md:grid-cols-4 md:gap-6
+  "
             >
-              {featuredProductsHomepage.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="mt-10 flex justify-center">
-              <Link href="/products">
-                <Button className="group h-12 px-8" size="lg" variant="outline">
-                  View All Products
-                  <ArrowRight
-                    className={`
-                      ml-2 h-4 w-4 transition-transform duration-300
-                      group-hover:translate-x-1
-                    `}
-                  />
-                </Button>
-              </Link>
+              {Object.entries(vehicleTypeMeta)
+                .slice(0, 4)
+                .map(([key, meta]) => (
+                  <Link
+                    key={key}
+                    aria-label={`Browse ${meta.label} vehicles`}
+                    className="
+          group relative flex flex-col space-y-4 overflow-hidden
+          rounded-2xl border bg-card shadow transition-all
+          duration-300 hover:shadow-lg
+        "
+                    href={`/announcements?type=${key}`}
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <div
+                        className="
+              absolute inset-0 z-10 bg-gradient-to-t
+              from-background/80 to-transparent
+            "
+                      />
+
+                      <Image
+                        alt={meta.label}
+                        className="
+              object-cover transition duration-300
+              group-hover:scale-105
+            "
+                        fill
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                        src={meta.image}
+                      />
+                    </div>
+
+                    <div className="relative z-20 -mt-6 p-4">
+                      <div className="mb-1 text-lg font-medium">
+                        {meta.label}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        View Listings
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </div>
         </section>
@@ -350,7 +332,7 @@ export default function HomePage() {
                   md:text-lg
                 `}
               >
-                We offer the best shopping experience with premium features
+                We offer the best platform for buying, selling, and renting vehicles
               </p>
             </div>
             <div
@@ -405,12 +387,20 @@ export default function HomePage() {
               lg:px-8
             `}
           >
-            <TestimonialsSection
-              className="py-0"
-              description="Don't just take our word for it - hear from our satisfied customers"
-              testimonials={testimonials}
-              title="What Our Customers Say"
-            />
+            <div className="mb-8 flex flex-col items-center text-center">
+              <h2
+                className={`
+                  font-display text-3xl leading-tight font-bold tracking-tight
+                  md:text-4xl
+                `}
+              >
+                What Our Users Say
+              </h2>
+              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
+            </div>
+
+            <RecentReviews />
+
           </div>
         </section>
 
@@ -447,7 +437,7 @@ export default function HomePage() {
                     md:text-4xl
                   `}
                 >
-                  Ready to Upgrade Your Tech?
+                  Ready to Hit the Road?
                 </h2>
                 <p
                   className={`
@@ -456,8 +446,7 @@ export default function HomePage() {
                   `}
                 >
                   Join thousands of satisfied customers and experience the best
-                  tech products on the market. Sign up today for exclusive deals
-                  and offers.
+                  vehicle marketplace. Sign up today and find your perfect match.
                 </p>
                 <div
                   className={`
@@ -473,13 +462,13 @@ export default function HomePage() {
                       Sign Up Now
                     </Button>
                   </Link>
-                  <Link href="/products">
+                  <Link href="/announcements">
                     <Button
                       className="h-12 px-8 transition-colors duration-200"
                       size="lg"
                       variant="outline"
                     >
-                      Browse Products
+                      Browse Announcements
                     </Button>
                   </Link>
                 </div>

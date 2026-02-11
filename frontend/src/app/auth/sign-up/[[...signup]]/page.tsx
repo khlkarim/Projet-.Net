@@ -1,27 +1,27 @@
 "use client";
 
-import * as React from "react";
+import { ArrowRightIcon, Loader2Icon, LockIcon, MailIcon, UserIcon, UserPlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as React from "react";
 import { toast } from "sonner";
-import { UserPlusIcon, MailIcon, LockIcon, UserIcon, Loader2Icon, ArrowRightIcon } from "lucide-react";
 
 import { useRegister } from "~/features/auth/hooks/auth.hooks";
 import { Button } from "~/ui/primitives/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/primitives/card";
 
 export default function SignUpPage() {
   const router = useRouter();
   const registerMutation = useRegister();
 
   const [formData, setFormData] = React.useState({
-    userName: "",
+    email: "",
     firstName: "",
     lastName: "",
-    email: "",
     password: "",
+    userName: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,9 +40,13 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center p-4">
-      <Card className="w-full max-w-lg shadow-2xl border-none bg-background/60 backdrop-blur-xl">
+      <Card className={`
+        w-full max-w-lg border-none bg-background/60 shadow-2xl backdrop-blur-xl
+      `}>
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-2 text-primary">
+          <div className={`
+            mx-auto mb-2 w-fit rounded-full bg-primary/10 p-3 text-primary
+          `}>
             <UserPlusIcon className="size-6" />
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">Create an account</CardTitle>
@@ -51,35 +55,44 @@ export default function SignUpPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form id="signup-form" onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
+          <form className="space-y-4" id="signup-form" onSubmit={handleSubmit}>
+            <div className={`
+              grid gap-4
+              sm:grid-cols-2
+            `}>
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <div className="relative">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <UserIcon className={`
+                    absolute top-1/2 left-3 size-4 -translate-y-1/2
+                    text-muted-foreground
+                  `} />
                   <Input
+                    className="pl-10"
                     id="firstName"
                     name="firstName"
-                    placeholder="John"
-                    className="pl-10"
-                    value={formData.firstName}
                     onChange={handleChange}
+                    placeholder="John"
                     required
+                    value={formData.firstName}
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <div className="relative">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <UserIcon className={`
+                    absolute top-1/2 left-3 size-4 -translate-y-1/2
+                    text-muted-foreground
+                  `} />
                   <Input
+                    className="pl-10"
                     id="lastName"
                     name="lastName"
-                    placeholder="Doe"
-                    className="pl-10"
-                    value={formData.lastName}
                     onChange={handleChange}
+                    placeholder="Doe"
                     required
+                    value={formData.lastName}
                   />
                 </div>
               </div>
@@ -88,15 +101,18 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <Label htmlFor="userName">Username</Label>
               <div className="relative">
-                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <UserIcon className={`
+                  absolute top-1/2 left-3 size-4 -translate-y-1/2
+                  text-muted-foreground
+                `} />
                 <Input
+                  className="pl-10"
                   id="userName"
                   name="userName"
-                  placeholder="johndoe123"
-                  className="pl-10"
-                  value={formData.userName}
                   onChange={handleChange}
+                  placeholder="johndoe123"
                   required
+                  value={formData.userName}
                 />
               </div>
             </div>
@@ -104,16 +120,19 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <MailIcon className={`
+                  absolute top-1/2 left-3 size-4 -translate-y-1/2
+                  text-muted-foreground
+                `} />
                 <Input
+                  className="pl-10"
                   id="email"
                   name="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  className="pl-10"
-                  value={formData.email}
                   onChange={handleChange}
+                  placeholder="john@example.com"
                   required
+                  type="email"
+                  value={formData.email}
                 />
               </div>
             </div>
@@ -121,15 +140,18 @@ export default function SignUpPage() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <LockIcon className={`
+                  absolute top-1/2 left-3 size-4 -translate-y-1/2
+                  text-muted-foreground
+                `} />
                 <Input
+                  className="pl-10"
                   id="password"
                   name="password"
-                  type="password"
-                  className="pl-10"
-                  value={formData.password}
                   onChange={handleChange}
                   required
+                  type="password"
+                  value={formData.password}
                 />
               </div>
             </div>
@@ -137,23 +159,29 @@ export default function SignUpPage() {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button
-            type="submit"
-            form="signup-form"
-            className="w-full h-12 text-lg font-semibold group"
+            className="group h-12 w-full text-lg font-semibold"
             disabled={registerMutation.isPending}
+            form="signup-form"
+            type="submit"
           >
             {registerMutation.isPending ? (
               <Loader2Icon className="size-5 animate-spin" />
             ) : (
               <>
                 Create Account
-                <ArrowRightIcon className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRightIcon className={`
+                  ml-2 size-4 transition-transform
+                  group-hover:translate-x-1
+                `} />
               </>
             )}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/auth/sign-in" className="font-semibold text-primary hover:underline">
+            <Link className={`
+              font-semibold text-primary
+              hover:underline
+            `} href="/auth/sign-in">
               Sign In
             </Link>
           </p>

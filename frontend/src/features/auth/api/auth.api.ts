@@ -2,12 +2,12 @@ import axiosInstance from '~/lib/axios';
 
 import {
     LoginRequest,
-    LoginResponse,
-    RegisterRequest,
-    RegisterResponse,
     loginRequestSchema,
+    LoginResponse,
     loginResponseSchema,
+    RegisterRequest,
     registerRequestSchema,
+    RegisterResponse,
     registerResponseSchema
 } from '../schemas/auth.schemas';
 

@@ -1,11 +1,12 @@
 import axiosInstance from '~/lib/axios';
+
 import {
-    NotificationResponse,
     CreateNotificationRequest,
-    UpdateNotificationRequest,
     createNotificationRequestSchema,
-    updateNotificationRequestSchema,
+    NotificationResponse,
     notificationResponseSchema,
+    UpdateNotificationRequest,
+    updateNotificationRequestSchema,
 } from '../schemas/notifications.schemas';
 
 export const notificationsApi = {
@@ -13,6 +14,10 @@ export const notificationsApi = {
         createNotificationRequestSchema.parse(data);
         const res = await axiosInstance.post('/api/Notifications', data);
         return notificationResponseSchema.parse(res.data);
+    },
+
+    delete: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/api/Notifications/${id}`);
     },
 
     getAll: async (): Promise<NotificationResponse[]> => {
@@ -34,9 +39,5 @@ export const notificationsApi = {
         updateNotificationRequestSchema.parse(data);
         const res = await axiosInstance.patch(`/api/Notifications/${id}`, data);
         return notificationResponseSchema.parse(res.data);
-    },
-
-    delete: async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/api/Notifications/${id}`);
     },
 };

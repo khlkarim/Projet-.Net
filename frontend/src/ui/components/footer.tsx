@@ -36,108 +36,6 @@ export function Footer({ className }: { className?: string }) {
               Your one-stop shop for everything tech. Premium products at
               competitive prices.
             </p>
-            <div className="flex space-x-4">
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Facebook className="h-4 w-4" />
-                <span className="sr-only">Facebook</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Twitter className="h-4 w-4" />
-                <span className="sr-only">Twitter</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Instagram className="h-4 w-4" />
-                <span className="sr-only">Instagram</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Github className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Linkedin className="h-4 w-4" />
-                <span className="sr-only">LinkedIn</span>
-              </Button>
-            </div>
-          </div>
-          <div>
-            <h3 className="mb-4 text-sm font-semibold">Shop</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products"
-                >
-                  All Products
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=audio"
-                >
-                  Audio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=wearables"
-                >
-                  Wearables
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=smartphones"
-                >
-                  Smartphones
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=laptops"
-                >
-                  Laptops
-                </Link>
-              </li>
-            </ul>
           </div>
           <div>
             <h3 className="mb-4 text-sm font-semibold">Company</h3>
@@ -159,31 +57,9 @@ export function Footer({ className }: { className?: string }) {
                     text-muted-foreground
                     hover:text-foreground
                   `}
-                  href="/careers"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
                   href="/blog"
                 >
                   Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/press"
-                >
-                  Press
                 </Link>
               </li>
               <li>
@@ -211,17 +87,6 @@ export function Footer({ className }: { className?: string }) {
                   href="/help"
                 >
                   Help Center
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/shipping"
-                >
-                  Shipping & Returns
                 </Link>
               </li>
               <li>

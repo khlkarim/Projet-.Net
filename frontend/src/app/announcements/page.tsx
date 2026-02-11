@@ -1,25 +1,26 @@
 "use client";
 
-import * as React from "react";
 import { SearchIcon, SlidersHorizontalIcon } from "lucide-react";
+import * as React from "react";
 
 import { useAnnouncements } from "~/features/announcements/hooks/announcements.hooks";
 import { AnnouncementType, VehicleType } from "~/types/enums";
-import { AnnouncementCard } from "./_components/announcement-card";
-import { Button } from "~/ui/primitives/button";
-import { Input } from "~/ui/primitives/input";
-import { Skeleton } from "~/ui/primitives/skeleton";
-import { Card } from "~/ui/primitives/card";
 import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "~/ui/components/page-header";
-import { Separator } from "~/ui/primitives/separator";
 import { Badge } from "~/ui/primitives/badge";
+import { Button } from "~/ui/primitives/button";
+import { Card } from "~/ui/primitives/card";
+import { Input } from "~/ui/primitives/input";
+import { Separator } from "~/ui/primitives/separator";
+import { Skeleton } from "~/ui/primitives/skeleton";
+
+import { AnnouncementCard } from "./_components/announcement-card";
 
 export default function AnnouncementsPage() {
-    const { data: announcements, isPending, isError } = useAnnouncements();
+    const { data: announcements, isError, isPending } = useAnnouncements();
 
     const [searchQuery, setSearchQuery] = React.useState("");
-    const [selectedType, setSelectedType] = React.useState<AnnouncementType | 0>(0);
-    const [selectedVehicle, setSelectedVehicle] = React.useState<VehicleType | "ALL">("ALL");
+    const [selectedType, setSelectedType] = React.useState<0 | AnnouncementType>(0);
+    const [selectedVehicle, setSelectedVehicle] = React.useState<"ALL" | VehicleType>("ALL");
     const [showFilters, setShowFilters] = React.useState(false);
 
     const filteredAnnouncements = React.useMemo(() => {
@@ -38,8 +39,8 @@ export default function AnnouncementsPage() {
         });
     }, [announcements, searchQuery, selectedType, selectedVehicle]);
 
-    const announcementTypes = Object.values(AnnouncementType);
-    const vehicleTypes = Object.values(VehicleType);
+    const announcementTypes = Object.values(AnnouncementType).filter((v) => !isNaN(Number(v))) as AnnouncementType[];
+    const vehicleTypes = Object.values(VehicleType).filter((v) => !isNaN(Number(v))) as VehicleType[];
 
     return (
         <div className="flex flex-col pb-20">
@@ -50,28 +51,40 @@ export default function AnnouncementsPage() {
                 </PageHeaderDescription>
             </PageHeader>
 
-            <div className="container px-4 md:px-6">
+            <div className={`
+              container px-4
+              md:px-6
+            `}>
                 <div className="flex flex-col gap-6">
                     {/* Search and Toggle Filters */}
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className={`
+                      flex flex-col gap-4
+                      sm:flex-row sm:items-center
+                    `}>
                         <div className="relative flex-1">
-                            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <SearchIcon className={`
+                              absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2
+                              text-muted-foreground
+                            `} />
                             <Input
-                                placeholder="Search by title, brand, or model..."
                                 className="pl-9"
-                                value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search by title, brand, or model..."
+                                value={searchQuery}
                             />
                         </div>
                         <Button
-                            variant="outline"
-                            className="gap-2 sm:w-auto"
+                            className={`
+                              gap-2
+                              sm:w-auto
+                            `}
                             onClick={() => setShowFilters(!showFilters)}
+                            variant="outline"
                         >
                             <SlidersHorizontalIcon className="size-4" />
                             Filters
                             {(selectedType !== 0 || selectedVehicle !== "ALL") && (
-                                <Badge variant="secondary" className="ml-1 px-1 py-0 text-[10px]">
+                                <Badge className="ml-1 px-1 py-0 text-[10px]" variant="secondary">
                                     {[selectedType, selectedVehicle].filter(v => v !== "ALL").length}
                                 </Badge>
                             )}
@@ -80,29 +93,34 @@ export default function AnnouncementsPage() {
 
                     {/* Expanded Filters */}
                     {showFilters && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className={`
+                          duration-200 animate-in fade-in slide-in-from-top-2
+                        `}>
                             <Card className="p-6">
-                                <div className="grid gap-6 md:grid-cols-2">
+                                <div className={`
+                                  grid gap-6
+                                  md:grid-cols-2
+                                `}>
                                     <div className="space-y-3">
                                         <h4 className="text-sm font-medium">Announcement Type</h4>
                                         <div className="flex flex-wrap gap-2">
                                             <Button
-                                                variant={selectedType === 0 ? "default" : "outline"}
-                                                size="sm"
                                                 className="rounded-full"
                                                 onClick={() => setSelectedType(0)}
+                                                size="sm"
+                                                variant={selectedType === 0 ? "default" : "outline"}
                                             >
                                                 All
                                             </Button>
                                             {announcementTypes.map((type) => (
                                                 <Button
-                                                    key={type}
-                                                    variant={selectedType === type ? "default" : "outline"}
-                                                    size="sm"
                                                     className="rounded-full"
+                                                    key={type}
                                                     onClick={() => setSelectedType(type)}
+                                                    size="sm"
+                                                    variant={selectedType === type ? "default" : "outline"}
                                                 >
-                                                    {type}
+                                                    {AnnouncementType[type]}
                                                 </Button>
                                             ))}
                                         </div>
@@ -112,22 +130,22 @@ export default function AnnouncementsPage() {
                                         <h4 className="text-sm font-medium">Vehicle Type</h4>
                                         <div className="flex flex-wrap gap-2">
                                             <Button
-                                                variant={selectedVehicle === "ALL" ? "default" : "outline"}
-                                                size="sm"
                                                 className="rounded-full"
                                                 onClick={() => setSelectedVehicle("ALL")}
+                                                size="sm"
+                                                variant={selectedVehicle === "ALL" ? "default" : "outline"}
                                             >
                                                 All
                                             </Button>
                                             {vehicleTypes.map((type) => (
                                                 <Button
-                                                    key={type}
-                                                    variant={selectedVehicle === type ? "default" : "outline"}
-                                                    size="sm"
                                                     className="rounded-full"
+                                                    key={type}
                                                     onClick={() => setSelectedVehicle(type)}
+                                                    size="sm"
+                                                    variant={selectedVehicle === type ? "default" : "outline"}
                                                 >
-                                                    {type}
+                                                    {VehicleType[type]}
                                                 </Button>
                                             ))}
                                         </div>
@@ -136,12 +154,12 @@ export default function AnnouncementsPage() {
                                 <Separator className="my-4" />
                                 <div className="flex justify-end">
                                     <Button
-                                        variant="ghost"
-                                        size="sm"
                                         onClick={() => {
                                             setSelectedType(0);
                                             setSelectedVehicle("ALL");
                                         }}
+                                        size="sm"
+                                        variant="ghost"
                                     >
                                         Reset Filters
                                     </Button>
@@ -154,10 +172,17 @@ export default function AnnouncementsPage() {
 
                     {/* Results Grid */}
                     {isPending ? (
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <div className={`
+                          grid grid-cols-1 gap-6
+                          sm:grid-cols-2
+                          lg:grid-cols-3
+                          xl:grid-cols-4
+                        `}>
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="flex flex-col gap-4">
-                                    <Skeleton className="aspect-video w-full rounded-xl" />
+                                <div className="flex flex-col gap-4" key={i}>
+                                    <Skeleton className={`
+                                      aspect-video w-full rounded-xl
+                                    `} />
                                     <div className="space-y-2">
                                         <Skeleton className="h-4 w-1/3" />
                                         <Skeleton className="h-6 w-3/4" />
@@ -167,28 +192,36 @@ export default function AnnouncementsPage() {
                             ))}
                         </div>
                     ) : isError ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className={`
+                          flex flex-col items-center justify-center py-20
+                          text-center
+                        `}>
                             <h3 className="text-xl font-semibold">Something went wrong</h3>
                             <p className="text-muted-foreground">We couldn&apos;t load the announcements. Please try again later.</p>
-                            <Button onClick={() => window.location.reload()} className="mt-4">
+                            <Button className="mt-4" onClick={() => window.location.reload()}>
                                 Retry
                             </Button>
                         </div>
                     ) : filteredAnnouncements.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center">
-                            <div className="rounded-full bg-muted p-6 mb-4">
-                                <SearchIcon className="size-10 text-muted-foreground" />
+                        <div className={`
+                          flex flex-col items-center justify-center py-20
+                          text-center
+                        `}>
+                            <div className="mb-4 rounded-full bg-muted p-6">
+                                <SearchIcon className={`
+                                  size-10 text-muted-foreground
+                                `} />
                             </div>
                             <h3 className="text-xl font-semibold">No announcements found</h3>
                             <p className="text-muted-foreground">Try adjusting your search or filters to find what you&apos;re looking for.</p>
                             <Button
-                                variant="outline"
                                 className="mt-4"
                                 onClick={() => {
                                     setSearchQuery("");
-                                    setSelectedType("ALL");
+                                    setSelectedType(0);
                                     setSelectedVehicle("ALL");
                                 }}
+                                variant="outline"
                             >
                                 Clear all filters
                             </Button>
@@ -200,9 +233,14 @@ export default function AnnouncementsPage() {
                                     Showing <strong>{filteredAnnouncements.length}</strong> announcements
                                 </p>
                             </div>
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            <div className={`
+                              grid grid-cols-1 gap-6
+                              sm:grid-cols-2
+                              lg:grid-cols-3
+                              xl:grid-cols-4
+                            `}>
                                 {filteredAnnouncements.map((announcement) => (
-                                    <AnnouncementCard key={announcement.id} announcement={announcement} />
+                                    <AnnouncementCard announcement={announcement} key={announcement.id} />
                                 ))}
                             </div>
                         </>

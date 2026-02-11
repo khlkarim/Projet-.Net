@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { useAuthStore } from '~/features/auth/store/auth.store';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;

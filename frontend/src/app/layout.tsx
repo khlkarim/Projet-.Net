@@ -5,11 +5,10 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { extractRouterConfig } from "uploadthing/server";
 
-import QueryProvider from "~/providers/query-provider";
-
 import { SEO_CONFIG } from "~/app";
 import { ourFileRouter } from "~/app/api/uploadthing/core";
 import { CartProvider } from "~/lib/hooks/use-cart";
+import QueryProvider from "~/providers/query-provider";
 import "~/css/globals.css";
 import { Footer } from "~/ui/components/footer";
 import { Header } from "~/ui/components/header/header";
@@ -56,7 +55,7 @@ export default function RootLayout({
             enableSystem
           >
             <CartProvider>
-              <Header showAuth={false} />
+              <Header showAuth={true} />
               <main className={`flex min-h-screen flex-col`}>{children}</main>
               <Footer />
               <Toaster />

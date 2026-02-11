@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { userResponseSchema } from '~/features/users/schemas/users.schemas';
 
 export const loginRequestSchema = z.object({
@@ -8,17 +9,17 @@ export const loginRequestSchema = z.object({
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
 export const loginResponseSchema = z.object({
-    user: userResponseSchema,
-    token: z.string()
+    token: z.string(),
+    user: userResponseSchema
 });
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 
 export const registerRequestSchema = z.object({
-    userName: z.string(),
+    email: z.string().email(),
     firstName: z.string(),
     lastName: z.string(),
-    email: z.string().email(),
-    password: z.string()
+    password: z.string(),
+    userName: z.string()
 });
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
 

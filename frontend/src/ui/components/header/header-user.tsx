@@ -1,5 +1,6 @@
 import {
   BarChart,
+  Bell,
   LogOut,
   Settings,
   Shield,
@@ -7,6 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useLogout } from "~/features/auth/hooks/auth.hooks";
 
 import { cn } from "~/lib/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "~/ui/primitives/avatar";
@@ -32,6 +34,8 @@ export function HeaderUserDropdown({
   userImage,
   userName,
 }: HeaderUserDropdownProps) {
+  const logoutMutation = useLogout();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -89,33 +93,15 @@ export function HeaderUserDropdown({
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/stats">
-            <BarChart className="mr-2 h-4 w-4" />
-            Stats
+          <Link className="cursor-pointer" href="/dashboard/profile">
+            <UserIcon className="mr-2 h-4 w-4" />
+            Account
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link className="cursor-pointer" href="/dashboard/profile">
-            <UserIcon className="mr-2 h-4 w-4" />
-            Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/settings">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/uploads">
-            <Upload className="mr-2 h-4 w-4" />
-            Uploads
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/admin/summary">
-            <Shield className="mr-2 h-4 w-4" />
-            Admin
+            <Bell className="mr-2 h-4 w-4" />
+            Notifications
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -130,11 +116,10 @@ export function HeaderUserDropdown({
                 focus:text-destrctive
               `,
           )}
+          onClick={() => { logoutMutation.mutateAsync() }}
         >
-          <Link href="/auth/sign-out">
-            <LogOut className="mr-2 h-4 w-4" />
-            Log out
-          </Link>
+          <LogOut className="mr-2 h-4 w-4" />
+          Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

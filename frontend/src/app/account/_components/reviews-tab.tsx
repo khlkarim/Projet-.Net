@@ -1,24 +1,22 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { toast } from "sonner";
 import {
-    StarIcon,
-    Trash2Icon,
+    AlertCircleIcon,
     EditIcon,
     ExternalLinkIcon,
     Loader2Icon,
-    AlertCircleIcon,
-    MessageSquareIcon
+    MessageSquareIcon,
+    StarIcon,
+    Trash2Icon
 } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
+import { toast } from "sonner";
 
-import { useMyReviews, useUpdateReview, useDeleteReview } from "~/features/reviews/hooks/reviews.hooks";
+import { useDeleteReview, useMyReviews, useUpdateReview } from "~/features/reviews/hooks/reviews.hooks";
+import { cn } from "~/lib/cn";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent, CardHeader } from "~/ui/primitives/card";
-import { Skeleton } from "~/ui/primitives/skeleton";
-import { Input } from "~/ui/primitives/input";
-import { Label } from "~/ui/primitives/label";
 import {
     Dialog,
     DialogContent,
@@ -28,25 +26,27 @@ import {
     DialogTitle,
     DialogTrigger
 } from "~/ui/primitives/dialog";
-import { cn } from "~/lib/cn";
+import { Input } from "~/ui/primitives/input";
+import { Label } from "~/ui/primitives/label";
+import { Skeleton } from "~/ui/primitives/skeleton";
 
 export function ReviewsTab() {
-    const { data: reviews, isPending, isError } = useMyReviews();
+    const { data: reviews, isError, isPending } = useMyReviews();
     const updateMutation = useUpdateReview();
     const deleteMutation = useDeleteReview();
 
-    const [editingReview, setEditingReview] = React.useState<{ id: string, title: string, content: string, rating: number } | null>(null);
+    const [editingReview, setEditingReview] = React.useState<null | { content: string, id: string, rating: number; title: string, }>(null);
 
     const handleUpdate = async () => {
         if (!editingReview) return;
         try {
             await updateMutation.mutateAsync({
-                id: editingReview.id,
                 data: {
-                    title: editingReview.title,
                     content: editingReview.content,
-                    rating: editingReview.rating
-                }
+                    rating: editingReview.rating,
+                    title: editingReview.title
+                },
+                id: editingReview.id
             });
             toast.success("Review updated");
             setEditingReview(null);
@@ -68,7 +68,7 @@ export function ReviewsTab() {
         return (
             <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-40 w-full rounded-xl" />
+                    <Skeleton className="h-40 w-full rounded-xl" key={i} />
                 ))}
             </div>
         );
@@ -76,8 +76,11 @@ export function ReviewsTab() {
 
     if (isError) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-destructive/20 bg-destructive/5">
-                <AlertCircleIcon className="size-10 text-destructive mb-4" />
+            <div className={`
+              flex flex-col items-center justify-center rounded-2xl border
+              border-destructive/20 bg-destructive/5 p-12 text-center
+            `}>
+                <AlertCircleIcon className="mb-4 size-10 text-destructive" />
                 <h3 className="text-lg font-semibold">Error loading reviews</h3>
                 <p className="text-muted-foreground">We couldn&apos;t fetch your reviews at this time.</p>
             </div>
@@ -86,12 +89,15 @@ export function ReviewsTab() {
 
     if (!reviews || reviews.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed">
-                <div className="bg-muted rounded-full p-6 mb-4">
+            <div className={`
+              flex flex-col items-center justify-center rounded-2xl border
+              border-dashed p-12 text-center
+            `}>
+                <div className="mb-4 rounded-full bg-muted p-6">
                     <MessageSquareIcon className="size-10 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-bold">No reviews found</h3>
-                <p className="text-muted-foreground max-w-xs mx-auto mb-6">
+                <p className="mx-auto mb-6 max-w-xs text-muted-foreground">
                     You haven&apos;t written any reviews yet. Shared experiences help our community!
                 </p>
                 <Button asChild>
@@ -104,18 +110,24 @@ export function ReviewsTab() {
     return (
         <div className="space-y-4">
             {reviews.map((review) => (
-                <Card key={review.id} className="overflow-hidden transition-all hover:border-primary/30">
+                <Card className={`
+                  overflow-hidden transition-all
+                  hover:border-primary/30
+                `} key={review.id}>
                     <CardHeader className="p-6 pb-2">
-                        <div className="flex items-start justify-between">
-                            <div className="space-y-1">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-1 min-w-0 flex-1">
                                 <div className="flex items-center gap-1">
                                     {Array.from({ length: 5 }).map((_, i) => (
                                         <StarIcon
-                                            key={i}
                                             className={cn(
                                                 "size-4",
-                                                i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-muted opacity-40"
+                                                i < review.rating ? `
+                                                  fill-yellow-400
+                                                  text-yellow-400
+                                                ` : `text-muted opacity-40`
                                             )}
+                                            key={i}
                                         />
                                     ))}
                                 </div>
@@ -125,9 +137,9 @@ export function ReviewsTab() {
                                 </p>
                             </div>
                             <div className="flex gap-2">
-                                <Dialog open={!!editingReview && editingReview.id === review.id} onOpenChange={(open) => !open && setEditingReview(null)}>
+                                <Dialog onOpenChange={(open) => !open && setEditingReview(null)} open={!!editingReview && editingReview.id === review.id}>
                                     <DialogTrigger asChild>
-                                        <Button size="icon" variant="ghost" className="size-8" onClick={() => setEditingReview({ id: review.id, title: review.title, content: review.content, rating: review.rating })}>
+                                        <Button className="size-8" onClick={() => setEditingReview({ content: review.content, id: review.id, rating: review.rating, title: review.title })} size="icon" variant="ghost">
                                             <EditIcon className="size-4" />
                                         </Button>
                                     </DialogTrigger>
@@ -142,33 +154,56 @@ export function ReviewsTab() {
                                                 <div className="flex gap-1">
                                                     {[1, 2, 3, 4, 5].map((star) => (
                                                         <button
+                                                            className={`
+                                                              transition-transform
+                                                              hover:scale-110
+                                                              focus:outline-none
+                                                            `}
                                                             key={star}
-                                                            type="button"
                                                             onClick={() => setEditingReview(prev => prev ? { ...prev, rating: star } : null)}
-                                                            className="focus:outline-none transition-transform hover:scale-110"
+                                                            type="button"
                                                         >
-                                                            <StarIcon className={cn("size-6", star <= (editingReview?.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-muted")} />
+                                                            <StarIcon className={cn(`
+                                                              size-6
+                                                            `, star <= (editingReview?.rating || 0) ? `
+                                                              fill-yellow-400
+                                                              text-yellow-400
+                                                            ` : `text-muted`)} />
                                                         </button>
                                                     ))}
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Title</Label>
-                                                <Input value={editingReview?.title || ""} onChange={(e) => setEditingReview(prev => prev ? { ...prev, title: e.target.value } : null)} />
+                                                <Input onChange={(e) => setEditingReview(prev => prev ? { ...prev, title: e.target.value } : null)} value={editingReview?.title || ""} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Content</Label>
                                                 <textarea
-                                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                                    value={editingReview?.content || ""}
+                                                    className={`
+                                                      flex min-h-[100px] w-full
+                                                      rounded-md border
+                                                      border-input
+                                                      bg-transparent px-3 py-2
+                                                      text-sm shadow-sm
+                                                      placeholder:text-muted-foreground
+                                                      focus-visible:ring-1
+                                                      focus-visible:ring-ring
+                                                      focus-visible:outline-none
+                                                      disabled:cursor-not-allowed
+                                                      disabled:opacity-50
+                                                    `}
                                                     onChange={(e) => setEditingReview(prev => prev ? { ...prev, content: e.target.value } : null)}
+                                                    value={editingReview?.content || ""}
                                                 />
                                             </div>
                                         </div>
                                         <DialogFooter>
-                                            <Button variant="outline" onClick={() => setEditingReview(null)}>Cancel</Button>
-                                            <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-                                                {updateMutation.isPending && <Loader2Icon className="size-4 mr-2 animate-spin" />}
+                                            <Button onClick={() => setEditingReview(null)} variant="outline">Cancel</Button>
+                                            <Button disabled={updateMutation.isPending} onClick={handleUpdate}>
+                                                {updateMutation.isPending && <Loader2Icon className={`
+                                                  mr-2 size-4 animate-spin
+                                                `} />}
                                                 Save Changes
                                             </Button>
                                         </DialogFooter>
@@ -177,7 +212,10 @@ export function ReviewsTab() {
 
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button size="icon" variant="ghost" className="size-8 text-muted-foreground hover:text-destructive">
+                                        <Button className={`
+                                          size-8 text-muted-foreground
+                                          hover:text-destructive
+                                        `} size="icon" variant="ghost">
                                             <Trash2Icon className="size-4" />
                                         </Button>
                                     </DialogTrigger>
@@ -188,8 +226,10 @@ export function ReviewsTab() {
                                         </DialogHeader>
                                         <DialogFooter>
                                             <Button variant="outline">Cancel</Button>
-                                            <Button variant="destructive" onClick={() => handleDelete(review.id)} disabled={deleteMutation.isPending}>
-                                                {deleteMutation.isPending && <Loader2Icon className="size-4 mr-2 animate-spin" />}
+                                            <Button disabled={deleteMutation.isPending} onClick={() => handleDelete(review.id)} variant="destructive">
+                                                {deleteMutation.isPending && <Loader2Icon className={`
+                                                  mr-2 size-4 animate-spin
+                                                `} />}
                                                 Delete Permanently
                                             </Button>
                                         </DialogFooter>
@@ -198,12 +238,17 @@ export function ReviewsTab() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-6 pt-0 space-y-4">
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed italic">
+                    <CardContent className="space-y-4 p-6 pt-0">
+                        <p className={`
+                          text-sm leading-relaxed text-neutral-600 italic break-words
+                          dark:text-neutral-400
+                        `}>
                             &quot;{review.content}&quot;
                         </p>
                         <div className="flex justify-start">
-                            <Button size="sm" variant="link" asChild className="p-0 h-auto text-primary gap-1">
+                            <Button asChild className={`
+                              h-auto gap-1 p-0 text-primary
+                            `} size="sm" variant="link">
                                 <Link href={`/announcements/${review.announcementId}`}>
                                     <ExternalLinkIcon className="size-3" />
                                     View Announcement

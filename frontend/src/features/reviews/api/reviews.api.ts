@@ -1,11 +1,12 @@
 import axiosInstance from '~/lib/axios';
+
 import {
-    ReviewResponse,
     CreateReviewRequest,
-    UpdateReviewRequest,
     createReviewRequestSchema,
-    updateReviewRequestSchema,
+    ReviewResponse,
     reviewResponseSchema,
+    UpdateReviewRequest,
+    updateReviewRequestSchema,
 } from '../schemas/reviews.schemas';
 
 export const reviewsApi = {
@@ -15,14 +16,18 @@ export const reviewsApi = {
         return reviewResponseSchema.parse(res.data);
     },
 
+    delete: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/api/Reviews/${id}`);
+    },
+
     getAll: async (): Promise<ReviewResponse[]> => {
         const res = await axiosInstance.get('/api/Reviews');
         return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
     },
 
-    getById: async (id: string): Promise<ReviewResponse> => {
-        const res = await axiosInstance.get(`/api/Reviews/${id}`);
-        return reviewResponseSchema.parse(res.data);
+    getAllByAnnouncement: async (announcementId: string): Promise<ReviewResponse[]> => {
+        const res = await axiosInstance.get(`/api/Reviews/announcement/${announcementId}`);
+        return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
     },
 
     getAllForCurrentUser: async (): Promise<ReviewResponse[]> => {
@@ -30,9 +35,9 @@ export const reviewsApi = {
         return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
     },
 
-    getAllByAnnouncement: async (announcementId: string): Promise<ReviewResponse[]> => {
-        const res = await axiosInstance.get(`/api/Reviews/announcement/${announcementId}`);
-        return res.data.map((r: unknown) => reviewResponseSchema.parse(r));
+    getById: async (id: string): Promise<ReviewResponse> => {
+        const res = await axiosInstance.get(`/api/Reviews/${id}`);
+        return reviewResponseSchema.parse(res.data);
     },
 
     update: async (
@@ -42,9 +47,5 @@ export const reviewsApi = {
         updateReviewRequestSchema.parse(data);
         const res = await axiosInstance.put(`/api/Reviews/${id}`, data);
         return reviewResponseSchema.parse(res.data);
-    },
-
-    delete: async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/api/Reviews/${id}`);
     },
 };

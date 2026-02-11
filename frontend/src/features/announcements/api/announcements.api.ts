@@ -1,9 +1,10 @@
 import axiosInstance from '~/lib/axios';
+
 import {
     AnnouncementResponse,
+    announcementResponseSchema,
     CreateAnnouncementRequest,
     UpdateAnnouncementRequest,
-    announcementResponseSchema,
 } from '../schemas/announcements.schemas';
 
 /**
@@ -42,20 +43,24 @@ export const announcementsApi = {
         return announcementResponseSchema.parse(res.data);
     },
 
+    delete: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/api/Announcements/${id}`);
+    },
+
     getAll: async (): Promise<AnnouncementResponse[]> => {
         const res = await axiosInstance.get('/api/Announcements');
         console.log(res);
         return res.data.map((a: unknown) => announcementResponseSchema.parse(a));
     },
 
-    getById: async (id: string): Promise<AnnouncementResponse> => {
-        const res = await axiosInstance.get(`/api/Announcements/${id}`);
-        return announcementResponseSchema.parse(res.data);
-    },
-
     getAllForCurrentUser: async (): Promise<AnnouncementResponse[]> => {
         const res = await axiosInstance.get('/api/Announcements/user');
         return res.data.map((a: unknown) => announcementResponseSchema.parse(a));
+    },
+
+    getById: async (id: string): Promise<AnnouncementResponse> => {
+        const res = await axiosInstance.get(`/api/Announcements/${id}`);
+        return announcementResponseSchema.parse(res.data);
     },
 
     update: async (
@@ -68,9 +73,5 @@ export const announcementsApi = {
             { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         return announcementResponseSchema.parse(res.data);
-    },
-
-    delete: async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/api/Announcements/${id}`);
     },
 };

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-
 import { toast } from 'sonner';
+
 import {
     LoginRequest,
     LoginResponse,
@@ -14,11 +14,11 @@ export const useLogin = () => {
 
     return useMutation<LoginResponse, unknown, LoginRequest>({
         mutationFn: (request) => login(request),
-        onSuccess: () => {
-            toast.success("Login successful.");
-        },
         onError: () => {
             toast.error("Failed to login.");
+        },
+        onSuccess: () => {
+            toast.success("Login successful.");
         },
     });
 };
@@ -28,12 +28,20 @@ export const useRegister = () => {
 
     return useMutation<RegisterResponse, unknown, RegisterRequest>({
         mutationFn: (request) => register(request),
-        onSuccess: () => {
-            toast.success("Registered successfully.");
-        },
         onError: () => {
             toast.error("Failed to register.");
         },
+        onSuccess: () => {
+            toast.success("Registered successfully.");
+        },
     });
 };
+
+export const useLogout = () => {
+    const { logout } = useAuthStore();
+    return {
+        mutate: logout,
+        mutateAsync: async () => logout
+    }
+}
 

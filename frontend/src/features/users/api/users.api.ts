@@ -2,23 +2,27 @@ import axiosInstance from '~/lib/axios';
 
 import {
     User,
-    UserUpdateRequest,
     userResponseSchema,
+    UserUpdateRequest,
     userUpdateRequestSchema
 } from '../schemas/users.schemas';
 
 export const usersApi = {
+    async delete(id: string): Promise<void> {
+        await axiosInstance.delete(`/api/Users/${id}`);
+    },
+
+    async getUserById(id: string): Promise<User> {
+        const response = await axiosInstance.get(`/api/Users/${id}`);
+        return userResponseSchema.parse(response.data);
+    },
+
     async getUsers(): Promise<User[]> {
         const response = await axiosInstance.get('/api/Users');
 
         return response.data.map((user: unknown) =>
             userResponseSchema.parse(user)
         );
-    },
-
-    async getUserById(id: string): Promise<User> {
-        const response = await axiosInstance.get(`/api/Users/${id}`);
-        return userResponseSchema.parse(response.data);
     },
 
     async update(
@@ -33,10 +37,6 @@ export const usersApi = {
         );
 
         return userResponseSchema.parse(response.data);
-    },
-
-    async delete(id: string): Promise<void> {
-        await axiosInstance.delete(`/api/Users/${id}`);
     }
 };
 

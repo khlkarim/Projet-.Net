@@ -1,45 +1,45 @@
 "use client";
 
 import { useAnnouncements } from "~/features/announcements/hooks/announcements.hooks";
-import { useReviews } from "~/features/reviews/hooks/reviews.hooks";
 import { useNotifications } from "~/features/notifications/hooks/notifications.hooks";
-import { useUsers } from "~/features/users/hooks/users.hooks";
 import { useReservations } from "~/features/reservations/hooks/reservations.hooks";
+import { useReviews } from "~/features/reviews/hooks/reviews.hooks";
+import { useUsers } from "~/features/users/hooks/users.hooks";
 
 export default function TestPage() {
   const {
     data: announcements,
-    isPending: isPendingAnnouncements,
+    error: errorAnnouncements,
     isError: isErrorAnnouncements,
-    error: errorAnnouncements
+    isPending: isPendingAnnouncements
   } = useAnnouncements();
 
   const {
     data: reservations,
-    isPending: isPendingReservations,
+    error: errorReservations,
     isError: isErrorReservations,
-    error: errorReservations
+    isPending: isPendingReservations
   } = useReservations();
 
   const {
     data: reviews,
-    isPending: isPendingReviews,
+    error: errorReviews,
     isError: isErrorReviews,
-    error: errorReviews
+    isPending: isPendingReviews
   } = useReviews();
 
   const {
     data: notifications,
-    isPending: isPendingNotifications,
+    error: errorNotifications,
     isError: isErrorNotifications,
-    error: errorNotifications
+    isPending: isPendingNotifications
   } = useNotifications();
 
   const {
     data: users,
-    isPending: isPendingUsers,
+    error: errorUsers,
     isError: isErrorUsers,
-    error: errorUsers
+    isPending: isPendingUsers
   } = useUsers();
 
   console.log("Announcements: ", announcements, isPendingAnnouncements, isErrorAnnouncements, errorAnnouncements);

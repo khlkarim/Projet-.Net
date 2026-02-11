@@ -9,56 +9,15 @@ import { User, UserUpdateRequest } from '../schemas/users.schemas';
 
 const usersKeys = {
     all: ['users'] as const,
-    lists: () => [...usersKeys.all, 'list'] as const,
-    list: () => [...usersKeys.lists()] as const,
-    details: () => [...usersKeys.all, 'detail'] as const,
     detail: (id: string) => [...usersKeys.details(), id] as const,
+    details: () => [...usersKeys.all, 'detail'] as const,
+    list: () => [...usersKeys.lists()] as const,
+    lists: () => [...usersKeys.all, 'list'] as const,
 };
 
 /* ---------------------------------- */
 /* Queries                            */
 /* ---------------------------------- */
-
-export function useUsers() {
-    return useQuery<User[]>({
-        queryKey: usersKeys.list(),
-        queryFn: usersApi.getUsers,
-    });
-}
-
-export function useUser(id: string) {
-    return useQuery<User>({
-        queryKey: usersKeys.detail(id),
-        queryFn: () => usersApi.getUserById(id),
-        enabled: !!id, // important for conditional fetching
-    });
-}
-
-/* ---------------------------------- */
-/* Mutations                          */
-/* ---------------------------------- */
-
-export function useUpdateUser() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UserUpdateRequest }) =>
-            usersApi.update(id, data),
-
-        onSuccess: (updatedUser) => {
-            // Update individual cache
-            queryClient.setQueryData(
-                usersKeys.detail(updatedUser.id),
-                updatedUser
-            );
-
-            // Invalidate lists (safe + minimal)
-            queryClient.invalidateQueries({
-                queryKey: usersKeys.lists(),
-            });
-        },
-    });
-}
 
 export function useDeleteUser() {
     const queryClient = useQueryClient();
@@ -77,5 +36,46 @@ export function useDeleteUser() {
                 queryKey: usersKeys.lists(),
             });
         },
+    });
+}
+
+export function useUpdateUser() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ data, id }: { data: UserUpdateRequest; id: string; }) =>
+            usersApi.update(id, data),
+
+        onSuccess: (updatedUser) => {
+            // Update individual cache
+            queryClient.setQueryData(
+                usersKeys.detail(updatedUser.id),
+                updatedUser
+            );
+
+            // Invalidate lists (safe + minimal)
+            queryClient.invalidateQueries({
+                queryKey: usersKeys.lists(),
+            });
+        },
+    });
+}
+
+/* ---------------------------------- */
+/* Mutations                          */
+/* ---------------------------------- */
+
+export function useUser(id: string) {
+    return useQuery<User>({
+        enabled: !!id, // important for conditional fetching
+        queryFn: () => usersApi.getUserById(id),
+        queryKey: usersKeys.detail(id),
+    });
+}
+
+export function useUsers() {
+    return useQuery<User[]>({
+        queryFn: usersApi.getUsers,
+        queryKey: usersKeys.list(),
     });
 }

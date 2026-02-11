@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { reservationsApi } from '../api/reservations.api';
 import {
     CreateReservationRequest,
@@ -12,18 +13,18 @@ import {
 export const reservationKeys = {
     all: ['reservations'] as const,
 
-    lists: () => [...reservationKeys.all, 'list'] as const,
-
-    list: (scope: 'all' | 'user') =>
-        [...reservationKeys.lists(), scope] as const,
-
-    details: () => [...reservationKeys.all, 'detail'] as const,
+    byAnnouncement: (announcementId: string) =>
+        [...reservationKeys.all, 'announcement', announcementId] as const,
 
     detail: (id: string) =>
         [...reservationKeys.details(), id] as const,
 
-    byAnnouncement: (announcementId: string) =>
-        [...reservationKeys.all, 'announcement', announcementId] as const,
+    details: () => [...reservationKeys.all, 'detail'] as const,
+
+    list: (scope: 'all' | 'user') =>
+        [...reservationKeys.lists(), scope] as const,
+
+    lists: () => [...reservationKeys.all, 'list'] as const,
 };
 
 /* ================================
@@ -32,28 +33,28 @@ export const reservationKeys = {
 
 export const useReservations = () =>
     useQuery({
-        queryKey: reservationKeys.list('all'),
         queryFn: reservationsApi.getAll,
+        queryKey: reservationKeys.list('all'),
     });
 
 export const useMyReservations = () =>
     useQuery({
-        queryKey: reservationKeys.list('user'),
         queryFn: reservationsApi.getAllForCurrentUser,
+        queryKey: reservationKeys.list('user'),
     });
 
 export const useReservation = (id: string) =>
     useQuery({
-        queryKey: reservationKeys.detail(id),
-        queryFn: () => reservationsApi.getById(id),
         enabled: !!id,
+        queryFn: () => reservationsApi.getById(id),
+        queryKey: reservationKeys.detail(id),
     });
 
 export const useReservationsByAnnouncement = (announcementId: string) =>
     useQuery({
-        queryKey: reservationKeys.byAnnouncement(announcementId),
-        queryFn: () => reservationsApi.getAllByAnnouncement(announcementId),
         enabled: !!announcementId,
+        queryFn: () => reservationsApi.getAllByAnnouncement(announcementId),
+        queryKey: reservationKeys.byAnnouncement(announcementId),
     });
 
 /* ================================
@@ -66,9 +67,12 @@ export const useCreateReservation = () => {
     return useMutation({
         mutationFn: (data: CreateReservationRequest) =>
             reservationsApi.create(data),
-        onSuccess: () => {
+        onSuccess: (created) => {
             queryClient.invalidateQueries({
                 queryKey: reservationKeys.lists(),
+            });
+            queryClient.invalidateQueries({
+                queryKey: reservationKeys.byAnnouncement(created.announcementId),
             });
         },
     });
@@ -79,11 +83,11 @@ export const useUpdateReservation = () => {
 
     return useMutation({
         mutationFn: ({
-            id,
             data,
+            id,
         }: {
-            id: string;
             data: UpdateReservationRequest;
+            id: string;
         }) => reservationsApi.update(id, data),
 
         onSuccess: (updated) => {

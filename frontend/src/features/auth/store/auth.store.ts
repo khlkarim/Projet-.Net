@@ -1,42 +1,51 @@
 import { create } from 'zustand';
-import { authApi } from '../api/auth.api';
 import { persist } from 'zustand/middleware';
+
 import { usersApi } from '~/features/users/api/users.api';
 import { User, UserUpdateRequest } from '~/features/users/schemas/users.schemas';
+
 import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../schemas/auth.schemas';
 
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  hasHydrated?: boolean;
-}
+import { authApi } from '../api/auth.api';
 
 export interface AuthActions {
   login: (data: LoginRequest) => Promise<LoginResponse>;
-  register: (data: RegisterRequest) => Promise<RegisterResponse>;
   logout: () => Promise<void>;
-  update: (user: UserUpdateRequest) => void;
+  register: (data: RegisterRequest) => Promise<RegisterResponse>;
   setHasHydrated: (state: boolean) => void;
+  update: (user: UserUpdateRequest) => void;
 }
 
-export const useAuthStore = create<AuthState & AuthActions>()(
+export interface AuthState {
+  hasHydrated?: boolean;
+  isAuthenticated: boolean;
+  token: null | string;
+  user: null | User;
+}
+
+export const useAuthStore = create<AuthActions & AuthState>()(
   persist(
     (set, get) => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
       hasHydrated: false,
-
+      isAuthenticated: false,
       /** Log in the user and update tokens */
       login: async (credentials: LoginRequest): Promise<LoginResponse> => {
         const response = await authApi.login(credentials);
         set({
-          user: response.user,
-          token: response.token,
           isAuthenticated: true,
+          token: response.token,
+          user: response.user,
         });
         return response;
+      },
+      /** Log out completely */
+      logout: async () => {
+        set({
+          isAuthenticated: false,
+          token: null,
+          user: null,
+          hasHydrated: false,
+        });
       },
 
       /** Log in the user and update tokens */
@@ -44,14 +53,13 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         return await authApi.register(credentials);
       },
 
-      /** Log out completely */
-      logout: async () => {
+      setHasHydrated: (state: boolean) => {
         set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
+          hasHydrated: state
         });
       },
+
+      token: null,
 
       /** Update user info */
       update: async (updatedUserRequest: UserUpdateRequest) => {
@@ -61,24 +69,20 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ user: response });
       },
 
-      setHasHydrated: (state: boolean) => {
-        set({
-          hasHydrated: state
-        });
-      }
+      user: null
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.setHasHydrated(true);
         }
-      }
+      },
+      partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        token: state.token,
+        user: state.user,
+      })
     },
   ),
 )

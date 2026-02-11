@@ -15,6 +15,7 @@ import { Skeleton } from "~/ui/primitives/skeleton";
 import { NotificationsWidget } from "../notifications/notifications-widget";
 import { ThemeToggle } from "../theme-toggle";
 import { HeaderUserDropdown } from "./header-user";
+import { useAuthStore } from "~/features/auth/store/auth.store";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -23,13 +24,15 @@ interface HeaderProps {
 
 export function Header({ showAuth = true }: HeaderProps) {
   const pathname = usePathname();
-  const { isPending, user } = useCurrentUser();
+  const isPending = useAuthStore((state) => !state.hasHydrated);
+  const user = useAuthStore((state) => state.user);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const mainNavigation = [
     { href: "/", name: "Home" },
     { href: "/announcements", name: "Announcements" },
     { href: "/account", name: "Account" },
+    { href: "/notifications", name: "Notifications" },
   ];
 
   const dashboardNavigation = [
@@ -67,9 +70,9 @@ export function Header({ showAuth = true }: HeaderProps) {
                   "text-xl font-bold",
                   !isDashboard &&
                   `
-                      bg-gradient-to-r from-primary to-primary/70 bg-clip-text
-                      tracking-tight text-transparent
-                    `,
+                    bg-gradient-to-r from-primary to-primary/70 bg-clip-text
+                    tracking-tight text-transparent
+                  `,
                 )}
               >
                 {SEO_CONFIG.name}
@@ -98,9 +101,9 @@ export function Header({ showAuth = true }: HeaderProps) {
                         <Link
                           className={cn(
                             `
-                                text-sm font-medium transition-colors
-                                hover:text-primary
-                              `,
+                              text-sm font-medium transition-colors
+                              hover:text-primary
+                            `,
                             isActive
                               ? "font-semibold text-primary"
                               : "text-muted-foreground",
@@ -121,14 +124,8 @@ export function Header({ showAuth = true }: HeaderProps) {
               (isPending ? (
                 <Skeleton className={`h-9 w-9 rounded-full`} />
               ) : (
-                <Cart />
+                <ThemeToggle />
               ))}
-
-            {isPending ? (
-              <Skeleton className="h-9 w-9 rounded-full" />
-            ) : (
-              <NotificationsWidget />
-            )}
 
             {showAuth && (
               <div
@@ -141,8 +138,7 @@ export function Header({ showAuth = true }: HeaderProps) {
                   <HeaderUserDropdown
                     isDashboard={!!isDashboard}
                     userEmail={user.email}
-                    userImage={user.image}
-                    userName={user.name}
+                    userName={user.userName}
                   />
                 ) : isPending ? (
                   <Skeleton className="h-10 w-32" />
@@ -160,13 +156,6 @@ export function Header({ showAuth = true }: HeaderProps) {
                 )}
               </div>
             )}
-
-            {!isDashboard &&
-              (isPending ? (
-                <Skeleton className={`h-9 w-9 rounded-full`} />
-              ) : (
-                <ThemeToggle />
-              ))}
 
             {/* Mobile menu button */}
             <Button
@@ -207,9 +196,9 @@ export function Header({ showAuth = true }: HeaderProps) {
                       isActive
                         ? "bg-primary/10 text-primary"
                         : `
-                            text-foreground
-                            hover:bg-muted/50 hover:text-primary
-                          `,
+                          text-foreground
+                          hover:bg-muted/50 hover:text-primary
+                        `,
                     )}
                     href={item.href}
                     key={item.name}

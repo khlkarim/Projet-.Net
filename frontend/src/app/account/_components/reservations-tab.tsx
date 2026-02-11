@@ -1,24 +1,23 @@
 "use client";
 
-import * as React from "react";
-import Link from "next/link";
-import { toast } from "sonner";
 import {
+    AlertCircleIcon,
     CalendarIcon,
     CarFrontIcon,
-    Trash2Icon,
-    XCircleIcon,
     ExternalLinkIcon,
     Loader2Icon,
-    AlertCircleIcon
+    Trash2Icon,
+    XCircleIcon
 } from "lucide-react";
+import Link from "next/link";
+import * as React from "react";
+import { toast } from "sonner";
 
-import { useMyReservations, useUpdateReservation, useDeleteReservation } from "~/features/reservations/hooks/reservations.hooks";
+import { useDeleteReservation, useMyReservations, useUpdateReservation } from "~/features/reservations/hooks/reservations.hooks";
 import { ReservationStatus } from "~/types/enums";
-import { Button } from "~/ui/primitives/button";
 import { Badge } from "~/ui/primitives/badge";
+import { Button } from "~/ui/primitives/button";
 import { Card, CardContent } from "~/ui/primitives/card";
-import { Skeleton } from "~/ui/primitives/skeleton";
 import {
     Dialog,
     DialogContent,
@@ -28,17 +27,18 @@ import {
     DialogTitle,
     DialogTrigger
 } from "~/ui/primitives/dialog";
+import { Skeleton } from "~/ui/primitives/skeleton";
 
 export function ReservationsTab() {
-    const { data: reservations, isPending, isError } = useMyReservations();
+    const { data: reservations, isError, isPending } = useMyReservations();
     const updateMutation = useUpdateReservation();
     const deleteMutation = useDeleteReservation();
 
     const handleCancel = async (id: string) => {
         try {
             await updateMutation.mutateAsync({
-                id,
-                data: { status: ReservationStatus.CANCELLED }
+                data: { status: ReservationStatus.CANCELLED },
+                id
             });
             toast.success("Reservation cancelled");
         } catch (error) {
@@ -59,7 +59,7 @@ export function ReservationsTab() {
         return (
             <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                    <Skeleton className="h-32 w-full rounded-xl" key={i} />
                 ))}
             </div>
         );
@@ -67,8 +67,11 @@ export function ReservationsTab() {
 
     if (isError) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-destructive/20 bg-destructive/5">
-                <AlertCircleIcon className="size-10 text-destructive mb-4" />
+            <div className={`
+              flex flex-col items-center justify-center rounded-2xl border
+              border-destructive/20 bg-destructive/5 p-12 text-center
+            `}>
+                <AlertCircleIcon className="mb-4 size-10 text-destructive" />
                 <h3 className="text-lg font-semibold">Error loading reservations</h3>
                 <p className="text-muted-foreground">We couldn&apos;t fetch your reservations at this time.</p>
             </div>
@@ -77,12 +80,15 @@ export function ReservationsTab() {
 
     if (!reservations || reservations.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed">
-                <div className="bg-muted rounded-full p-6 mb-4">
+            <div className={`
+              flex flex-col items-center justify-center rounded-2xl border
+              border-dashed p-12 text-center
+            `}>
+                <div className="mb-4 rounded-full bg-muted p-6">
                     <CalendarIcon className="size-10 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-bold">No reservations found</h3>
-                <p className="text-muted-foreground max-w-xs mx-auto mb-6">
+                <p className="mx-auto mb-6 max-w-xs text-muted-foreground">
                     You haven&apos;t made any reservations yet. Browse our announcements to find something you like.
                 </p>
                 <Button asChild>
@@ -95,21 +101,33 @@ export function ReservationsTab() {
     return (
         <div className="space-y-4">
             {reservations.map((res) => (
-                <Card key={res.id} className="overflow-hidden transition-all hover:border-primary/30">
+                <Card className={`
+                  overflow-hidden transition-all
+                  hover:border-primary/30
+                `} key={res.id}>
                     <CardContent className="p-0">
-                        <div className="flex flex-col sm:flex-row">
-                            <div className="flex-1 p-6 space-y-4">
-                                <div className="flex items-start justify-between">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-tighter">
+                        <div className={`
+                          flex flex-col
+                          sm:flex-row
+                        `}>
+                            <div className="flex-1 space-y-4 p-6 min-w-0">
+                                <div className={`
+                                  flex items-start justify-between gap-4
+                                `}>
+                                    <div className="space-y-1 min-w-0">
+                                        <div className={`
+                                          flex items-center gap-2 text-xs
+                                          font-semibold tracking-tighter
+                                          text-primary uppercase
+                                        `}>
                                             <CarFrontIcon className="size-3" />
                                             Announcement ID: {res.announcementId.slice(0, 8)}...
                                         </div>
                                         <h4 className="text-lg font-bold">Car Reservation</h4>
                                     </div>
                                     <Badge
+                                        className="text-[10px] uppercase"
                                         variant={res.status === ReservationStatus.CONFIRMED ? "default" : res.status === ReservationStatus.PENDING ? "secondary" : "outline"}
-                                        className="uppercase text-[10px]"
                                     >
                                         {res.status}
                                     </Badge>
@@ -117,24 +135,42 @@ export function ReservationsTab() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Start Date</p>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <CalendarIcon className="size-3.5 text-primary" />
+                                        <p className={`
+                                          text-[10px] font-bold tracking-widest
+                                          text-muted-foreground uppercase
+                                        `}>Start Date</p>
+                                        <div className={`
+                                          flex items-center gap-2 text-sm
+                                        `}>
+                                            <CalendarIcon className={`
+                                              size-3.5 text-primary
+                                            `} />
                                             {new Date(res.startDate).toLocaleDateString()}
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">End Date</p>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <CalendarIcon className="size-3.5 text-primary" />
+                                        <p className={`
+                                          text-[10px] font-bold tracking-widest
+                                          text-muted-foreground uppercase
+                                        `}>End Date</p>
+                                        <div className={`
+                                          flex items-center gap-2 text-sm
+                                        `}>
+                                            <CalendarIcon className={`
+                                              size-3.5 text-primary
+                                            `} />
                                             {new Date(res.endDate).toLocaleDateString()}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="bg-muted/30 border-t sm:border-t-0 sm:border-l p-4 flex sm:flex-col justify-center gap-2 shrink-0">
-                                <Button size="sm" variant="outline" asChild className="gap-2">
+                            <div className={`
+                              flex shrink-0 justify-center gap-2 border-t
+                              bg-muted/30 p-4
+                              sm:flex-col sm:border-t-0 sm:border-l
+                            `}>
+                                <Button asChild className="gap-2" size="sm" variant="outline">
                                     <Link href={`/announcements/${res.announcementId}`}>
                                         <ExternalLinkIcon className="size-3.5" />
                                         View
@@ -143,20 +179,31 @@ export function ReservationsTab() {
 
                                 {res.status === ReservationStatus.PENDING && (
                                     <Button
+                                        className={`
+                                          gap-2 text-destructive
+                                          hover:bg-destructive/10
+                                          hover:text-destructive
+                                        `}
+                                        disabled={updateMutation.isPending}
+                                        onClick={() => handleCancel(res.id)}
                                         size="sm"
                                         variant="ghost"
-                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
-                                        onClick={() => handleCancel(res.id)}
-                                        disabled={updateMutation.isPending}
                                     >
-                                        {updateMutation.isPending ? <Loader2Icon className="size-3.5 animate-spin" /> : <XCircleIcon className="size-3.5" />}
+                                        {updateMutation.isPending ? <Loader2Icon className={`
+                                          size-3.5 animate-spin
+                                        `} /> : <XCircleIcon className={`
+                                          size-3.5
+                                        `} />}
                                         Cancel
                                     </Button>
                                 )}
 
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive gap-2">
+                                        <Button className={`
+                                          gap-2 text-muted-foreground
+                                          hover:text-destructive
+                                        `} size="sm" variant="ghost">
                                             <Trash2Icon className="size-3.5" />
                                             Delete
                                         </Button>
@@ -169,13 +216,15 @@ export function ReservationsTab() {
                                             </DialogDescription>
                                         </DialogHeader>
                                         <DialogFooter>
-                                            <Button variant="outline" onClick={() => { }}>Cancel</Button>
+                                            <Button onClick={() => { }} variant="outline">Cancel</Button>
                                             <Button
-                                                variant="destructive"
-                                                onClick={() => handleDelete(res.id)}
                                                 disabled={deleteMutation.isPending}
+                                                onClick={() => handleDelete(res.id)}
+                                                variant="destructive"
                                             >
-                                                {deleteMutation.isPending && <Loader2Icon className="size-4 mr-2 animate-spin" />}
+                                                {deleteMutation.isPending && <Loader2Icon className={`
+                                                  mr-2 size-4 animate-spin
+                                                `} />}
                                                 Confirm Delete
                                             </Button>
                                         </DialogFooter>

@@ -1,7 +1,7 @@
 backend/bin
 backend/obj
 backend/.env
-backend/wwwroot
+backend/wwwroot/uploads
 frontend/.env
 backend/bin
 backend/obj

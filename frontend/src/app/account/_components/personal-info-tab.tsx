@@ -1,25 +1,25 @@
 "use client";
 
+import { FingerprintIcon, Loader2Icon, MailIcon, SaveIcon, UserIcon } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
-import { SaveIcon, UserIcon, MailIcon, FingerprintIcon, Loader2Icon } from "lucide-react";
 
 import { useAuthStore } from "~/features/auth/store/auth.store";
 import { Button } from "~/ui/primitives/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/ui/primitives/card";
 import { Separator } from "~/ui/primitives/separator";
 
 export function PersonalInfoTab() {
-    const { user, update } = useAuthStore();
+    const { update, user } = useAuthStore();
     const [isUpdating, setIsUpdating] = React.useState(false);
 
     const [formData, setFormData] = React.useState({
-        userName: user?.userName || "",
+        email: user?.email || "",
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
-        email: user?.email || "",
+        userName: user?.userName || "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ export function PersonalInfoTab() {
 
         setIsUpdating(true);
         try {
-            await update({ id: user.id, ...formData });
+            await update(formData);
             toast.success("Profile updated successfully");
         } catch (error) {
             toast.error("Failed to update profile");
@@ -44,7 +44,7 @@ export function PersonalInfoTab() {
     };
 
     return (
-        <Card className="border-none shadow-none bg-transparent">
+        <Card className="border-none bg-transparent shadow-none">
             <CardHeader className="px-0">
                 <CardTitle className="text-2xl">Personal Information</CardTitle>
                 <CardDescription>
@@ -52,68 +52,82 @@ export function PersonalInfoTab() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="px-0">
-                <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-2">
+                <form className="space-y-6" id="profile-form" onSubmit={handleSubmit}>
+                    <div className={`
+                      grid gap-6
+                      md:grid-cols-2
+                    `}>
                         <div className="space-y-2">
-                            <Label htmlFor="userName" className="flex items-center gap-2">
-                                <FingerprintIcon className="size-3.5 text-muted-foreground" />
+                            <Label className="flex items-center gap-2" htmlFor="userName">
+                                <FingerprintIcon className={`
+                                  size-3.5 text-muted-foreground
+                                `} />
                                 Username
                             </Label>
                             <Input
                                 id="userName"
                                 name="userName"
-                                value={formData.userName}
                                 onChange={handleChange}
                                 placeholder="johndoe"
                                 required
+                                value={formData.userName}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="flex items-center gap-2">
-                                <MailIcon className="size-3.5 text-muted-foreground" />
+                            <Label className="flex items-center gap-2" htmlFor="email">
+                                <MailIcon className={`
+                                  size-3.5 text-muted-foreground
+                                `} />
                                 Email Address
                             </Label>
                             <Input
                                 id="email"
                                 name="email"
-                                type="email"
-                                value={formData.email}
                                 onChange={handleChange}
                                 placeholder="john@example.com"
                                 required
+                                type="email"
+                                value={formData.email}
                             />
                         </div>
                     </div>
 
                     <Separator />
 
-                    <div className="grid gap-6 md:grid-cols-2">
+                    <div className={`
+                      grid gap-6
+                      md:grid-cols-2
+                    `}>
                         <div className="space-y-2">
-                            <Label htmlFor="firstName" className="flex items-center gap-2">
-                                <UserIcon className="size-3.5 text-muted-foreground" />
+                            <Label className="flex items-center gap-2" htmlFor="firstName">
+                                <UserIcon className={`
+                                  size-3.5 text-muted-foreground
+                                `} />
                                 First Name
                             </Label>
                             <Input
                                 id="firstName"
                                 name="firstName"
-                                value={formData.firstName}
                                 onChange={handleChange}
                                 placeholder="John"
                                 required
+                                value={formData.firstName}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="lastName" className="flex items-center gap-2">
-                                <UserIcon className="size-3.5 text-muted-foreground" />
+                            <Label className="flex items-center gap-2" htmlFor="lastName">
+                                <UserIcon className={`
+                                  size-3.5 text-muted-foreground
+                                `} />
                                 Last Name
                             </Label>
                             <Input
                                 id="lastName"
                                 name="lastName"
-                                value={formData.lastName}
                                 onChange={handleChange}
                                 placeholder="Doe"
                                 required
+                                value={formData.lastName}
                             />
                         </div>
                     </div>
@@ -121,10 +135,13 @@ export function PersonalInfoTab() {
             </CardContent>
             <CardFooter className="px-0 pt-6">
                 <Button
-                    type="submit"
-                    form="profile-form"
+                    className={`
+                      h-12 w-full min-w-[150px] gap-2
+                      sm:w-auto
+                    `}
                     disabled={isUpdating}
-                    className="w-full sm:w-auto min-w-[150px] h-12 gap-2"
+                    form="profile-form"
+                    type="submit"
                 >
                     {isUpdating ? (
                         <Loader2Icon className="size-4 animate-spin" />

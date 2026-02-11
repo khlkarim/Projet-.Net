@@ -1,4 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { announcementsApi } from '../api/announcements.api';
 import {
     CreateAnnouncementRequest,
@@ -12,15 +13,15 @@ import {
 export const announcementKeys = {
     all: ['announcements'] as const,
 
-    lists: () => [...announcementKeys.all, 'list'] as const,
+    detail: (id: string) =>
+        [...announcementKeys.details(), id] as const,
+
+    details: () => [...announcementKeys.all, 'detail'] as const,
 
     list: (scope: 'all' | 'user') =>
         [...announcementKeys.lists(), scope] as const,
 
-    details: () => [...announcementKeys.all, 'detail'] as const,
-
-    detail: (id: string) =>
-        [...announcementKeys.details(), id] as const,
+    lists: () => [...announcementKeys.all, 'list'] as const,
 };
 
 /* ================================
@@ -29,21 +30,21 @@ export const announcementKeys = {
 
 export const useAnnouncements = () =>
     useQuery({
-        queryKey: announcementKeys.list('all'),
         queryFn: announcementsApi.getAll,
+        queryKey: announcementKeys.list('all'),
     });
 
 export const useMyAnnouncements = () =>
     useQuery({
-        queryKey: announcementKeys.list('user'),
         queryFn: announcementsApi.getAllForCurrentUser,
+        queryKey: announcementKeys.list('user'),
     });
 
 export const useAnnouncement = (id: string) =>
     useQuery({
-        queryKey: announcementKeys.detail(id),
-        queryFn: () => announcementsApi.getById(id),
         enabled: !!id,
+        queryFn: () => announcementsApi.getById(id),
+        queryKey: announcementKeys.detail(id),
     });
 
 /* ================================
@@ -69,11 +70,11 @@ export const useUpdateAnnouncement = () => {
 
     return useMutation({
         mutationFn: ({
-            id,
             data,
+            id,
         }: {
-            id: string;
             data: UpdateAnnouncementRequest;
+            id: string;
         }) => announcementsApi.update(id, data),
 
         onSuccess: (updated) => {

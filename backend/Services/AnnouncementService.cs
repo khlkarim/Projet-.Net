@@ -7,12 +7,27 @@ namespace VehiclePlatform.API.Services
     public class AnnouncementService : IAnnouncementService
     {
         private readonly IAnnouncementRepository _repository;
+        private readonly IWebHostEnvironment _env;
 
-        public AnnouncementService(IAnnouncementRepository repository)
+        private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+        private readonly string[] AllowedContentTypes =
+        {
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        };
+
+        public AnnouncementService(
+            IAnnouncementRepository repository,
+            IWebHostEnvironment env)
         {
             _repository = repository;
+            _env = env;
         }
 
+        // ===============================
+        // CREATE
+        // ===============================
         public async Task<AnnouncementResponseDto> CreateAsync(CreateAnnouncementDto dto, string userId)
         {
             var announcement = new Announcement
@@ -31,33 +46,55 @@ namespace VehiclePlatform.API.Services
                 ApplicationUserId = userId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                Files = dto.Files?.Select(MapFile).ToList() ?? new List<AnnouncementFile>()
+                Files = new List<AnnouncementFile>()
             };
+
+            if (dto.Files != null && dto.Files.Any())
+            {
+                foreach (var file in dto.Files)
+                {
+                    var savedFile = await SaveFileAsync(file);
+                    announcement.Files.Add(savedFile);
+                }
+            }
 
             var created = await _repository.CreateAsync(announcement);
             return MapToResponse(created);
         }
 
+        // ===============================
+        // GET ALL
+        // ===============================
         public async Task<List<AnnouncementResponseDto>> GetAllAsync()
         {
             var announcements = await _repository.GetAllAsync();
             return announcements.Select(MapToResponse).ToList();
         }
 
+        // ===============================
+        // GET BY USER
+        // ===============================
         public async Task<List<AnnouncementResponseDto>> GetAllByUserIdAsync(string userId)
         {
             var announcements = await _repository.GetAllByUserIdAsync(userId);
             return announcements.Select(MapToResponse).ToList();
         }
 
+        // ===============================
+        // GET BY ID
+        // ===============================
         public async Task<AnnouncementResponseDto> GetByIdAsync(Guid id)
         {
             var announcement = await _repository.GetByIdAsync(id);
             if (announcement == null)
                 throw new KeyNotFoundException("Announcement not found.");
+
             return MapToResponse(announcement);
         }
 
+        // ===============================
+        // UPDATE
+        // ===============================
         public async Task<AnnouncementResponseDto> UpdateAsync(Guid id, UpdateAnnouncementDto dto, string userId)
         {
             var announcement = await _repository.GetByIdAsync(id);
@@ -67,7 +104,6 @@ namespace VehiclePlatform.API.Services
             if (announcement.ApplicationUserId != userId)
                 throw new UnauthorizedAccessException("You are not allowed to update this announcement.");
 
-            // Update fields if provided
             announcement.Title = dto.Title ?? announcement.Title;
             announcement.Description = dto.Description ?? announcement.Description;
             announcement.Mileage = dto.Mileage ?? announcement.Mileage;
@@ -81,16 +117,22 @@ namespace VehiclePlatform.API.Services
             announcement.Color = dto.Color ?? announcement.Color;
             announcement.UpdatedAt = DateTime.UtcNow;
 
-            // Add new files if any
             if (dto.Files != null && dto.Files.Any())
             {
-                announcement.Files.AddRange(dto.Files.Select(MapFile));
+                foreach (var file in dto.Files)
+                {
+                    var savedFile = await SaveFileAsync(file);
+                    announcement.Files.Add(savedFile);
+                }
             }
 
             var updated = await _repository.UpdateAsync(announcement);
             return MapToResponse(updated);
         }
 
+        // ===============================
+        // DELETE
+        // ===============================
         public async Task<bool> DeleteAsync(Guid id, string userId)
         {
             var announcement = await _repository.GetByIdAsync(id);
@@ -100,9 +142,59 @@ namespace VehiclePlatform.API.Services
             if (announcement.ApplicationUserId != userId)
                 throw new UnauthorizedAccessException("You are not allowed to delete this announcement.");
 
+            // Delete physical files
+            foreach (var file in announcement.Files)
+            {
+                var physicalPath = Path.Combine(
+                    _env.WebRootPath,
+                    file.FilePath.TrimStart('/')
+                );
+
+                if (File.Exists(physicalPath))
+                {
+                    File.Delete(physicalPath);
+                }
+            }
+
             return await _repository.DeleteAsync(id);
         }
 
+        // ===============================
+        // FILE STORAGE
+        // ===============================
+        private async Task<AnnouncementFile> SaveFileAsync(IFormFile file)
+        {
+            if (!AllowedContentTypes.Contains(file.ContentType))
+                throw new InvalidOperationException("Invalid file type.");
+
+            if (file.Length > MaxFileSize)
+                throw new InvalidOperationException("File exceeds maximum size (5MB).");
+
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
+
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var physicalPath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(physicalPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return new AnnouncementFile
+            {
+                FileName = uniqueFileName,
+                FilePath = $"/uploads/{uniqueFileName}",
+                Size = file.Length,
+                ContentType = file.ContentType
+            };
+        }
+
+        // ===============================
+        // MAPPING
+        // ===============================
         private static AnnouncementResponseDto MapToResponse(Announcement announcement)
         {
             return new AnnouncementResponseDto
@@ -130,18 +222,6 @@ namespace VehiclePlatform.API.Services
                     Size = f.Size,
                     ContentType = f.ContentType
                 }).ToList()
-            };
-        }
-
-        private static AnnouncementFile MapFile(IFormFile file)
-        {
-            // You can expand this to save the file to disk or cloud storage
-            return new AnnouncementFile
-            {
-                FileName = file.FileName,
-                FilePath = $"uploads/{file.FileName}", // placeholder path
-                Size = file.Length,
-                ContentType = file.ContentType
             };
         }
     }

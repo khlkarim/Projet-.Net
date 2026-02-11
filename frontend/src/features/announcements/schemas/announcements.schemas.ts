@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { AnnouncementType, FuelType, TransmissionType, VehicleType } from '~/types/enums';
 
 /* ================================
@@ -6,18 +7,18 @@ import { AnnouncementType, FuelType, TransmissionType, VehicleType } from '~/typ
 ================================ */
 
 export const createAnnouncementRequestSchema = z.object({
-    title: z.string().min(1).max(100),
-    description: z.string().max(1000).optional().default(''),
-    mileage: z.number().int().min(0).optional().default(0),
-    price: z.number().min(0).optional().default(0),
     announcementType: z.nativeEnum(AnnouncementType),
     brand: z.string().min(1).max(50),
-    model: z.string().min(1).max(50),
-    vehicleType: z.nativeEnum(VehicleType),
-    fuelType: z.nativeEnum(FuelType),
-    transmission: z.nativeEnum(TransmissionType),
     color: z.string().max(30).optional().default(''),
+    description: z.string().max(1000).optional().default(''),
     files: z.array(z.instanceof(File)).optional(),
+    fuelType: z.nativeEnum(FuelType),
+    mileage: z.number().int().min(0).optional().default(0),
+    model: z.string().min(1).max(50),
+    price: z.number().min(0).optional().default(0),
+    title: z.string().min(1).max(100),
+    transmission: z.nativeEnum(TransmissionType),
+    vehicleType: z.nativeEnum(VehicleType),
 });
 export type CreateAnnouncementRequest = z.infer<typeof createAnnouncementRequestSchema>;
 
@@ -26,18 +27,18 @@ export type CreateAnnouncementRequest = z.infer<typeof createAnnouncementRequest
 ================================ */
 
 export const updateAnnouncementRequestSchema = z.object({
-    title: z.string().max(100).optional(),
-    description: z.string().max(1000).optional(),
-    mileage: z.number().int().min(0).optional(),
-    price: z.number().min(0).optional(),
     announcementType: z.nativeEnum(AnnouncementType).optional(),
     brand: z.string().max(50).optional(),
-    model: z.string().max(50).optional(),
-    vehicleType: z.nativeEnum(VehicleType).optional(),
-    fuelType: z.nativeEnum(FuelType).optional(),
-    transmission: z.nativeEnum(TransmissionType).optional(),
     color: z.string().max(30).optional(),
+    description: z.string().max(1000).optional(),
     files: z.array(z.instanceof(File)).optional(),
+    fuelType: z.nativeEnum(FuelType).optional(),
+    mileage: z.number().int().min(0).optional(),
+    model: z.string().max(50).optional(),
+    price: z.number().min(0).optional(),
+    title: z.string().max(100).optional(),
+    transmission: z.nativeEnum(TransmissionType).optional(),
+    vehicleType: z.nativeEnum(VehicleType).optional(),
 });
 export type UpdateAnnouncementRequest = z.infer<typeof updateAnnouncementRequestSchema>;
 
@@ -46,36 +47,36 @@ export type UpdateAnnouncementRequest = z.infer<typeof updateAnnouncementRequest
 ================================ */
 
 export const announcementFileSchema = z.object({
-    id: z.number(),
+    contentType: z.string(),
     fileName: z.string(),
     filePath: z.string(),
+    id: z.number(),
     size: z.number(),
-    contentType: z.string(),
 });
 export type AnnouncementFile = z.infer<typeof announcementFileSchema>;
 
 export const announcementResponseSchema = z.object({
-    id: z.string(),
-    title: z.string(),
-    description: z.string(),
-    mileage: z.number(),
-    price: z.number(),
     announcementType: z.nativeEnum(AnnouncementType),
     brand: z.string(),
-    model: z.string(),
-    vehicleType: z.nativeEnum(VehicleType),
-    fuelType: z.nativeEnum(FuelType),
-    transmission: z.nativeEnum(TransmissionType),
     color: z.string(),
-    createdByUserId: z.string(),
     createdAt: z.string().refine(
         (val) => !isNaN(Date.parse(val)),
         { message: "Invalid datetime format" }
     ),
+    createdByUserId: z.string(),
+    description: z.string(),
+    files: z.array(announcementFileSchema),
+    fuelType: z.nativeEnum(FuelType),
+    id: z.string(),
+    mileage: z.number(),
+    model: z.string(),
+    price: z.number(),
+    title: z.string(),
+    transmission: z.nativeEnum(TransmissionType),
     updatedAt: z.string().refine(
         (val) => !isNaN(Date.parse(val)),
         { message: "Invalid datetime format" }
     ),
-    files: z.array(announcementFileSchema),
+    vehicleType: z.nativeEnum(VehicleType),
 });
 export type AnnouncementResponse = z.infer<typeof announcementResponseSchema>;
