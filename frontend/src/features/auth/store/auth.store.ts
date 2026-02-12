@@ -7,6 +7,7 @@ import { User, UserUpdateRequest } from '~/features/users/schemas/users.schemas'
 import type { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '../schemas/auth.schemas';
 
 import { authApi } from '../api/auth.api';
+import { useRouter } from 'next/navigation';
 
 export interface AuthActions {
   login: (data: LoginRequest) => Promise<LoginResponse>;
@@ -44,7 +45,6 @@ export const useAuthStore = create<AuthActions & AuthState>()(
           isAuthenticated: false,
           token: null,
           user: null,
-          hasHydrated: false,
         });
       },
 

@@ -75,7 +75,7 @@ export default function AnnouncementDetailPage() {
     }
 
     const mainImage = announcement.files && announcement.files.length > 0
-        ? "http://localhost:5219" + announcement.files[0].filePath
+        ? (announcement.files[0].filePath.startsWith("http") ? announcement.files[0].filePath : "http://localhost:5219" + announcement.files[0].filePath)
         : null;
 
     return (
@@ -136,7 +136,9 @@ export default function AnnouncementDetailPage() {
                                     `} key={file.id}>
                                         <img alt="car detail" className={`
                                           h-full w-full object-cover
-                                        `} src={file.filePath} />
+                                        `} src={
+                                                announcement.files[0].filePath.startsWith("http") ? announcement.files[0].filePath : "http://localhost:5219" + announcement.files[0].filePath
+                                            } />
                                     </div>
                                 ))}
                             </div>

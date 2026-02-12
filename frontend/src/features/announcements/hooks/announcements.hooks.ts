@@ -5,6 +5,8 @@ import {
     CreateAnnouncementRequest,
     UpdateAnnouncementRequest,
 } from '../schemas/announcements.schemas';
+import { useCreateNotification } from '~/features/notifications/hooks/notifications.hooks';
+import { useUsers } from '~/features/users/hooks/users.hooks';
 
 /* ================================
    Query Keys
@@ -55,8 +57,9 @@ export const useCreateAnnouncement = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: CreateAnnouncementRequest) =>
-            announcementsApi.create(data),
+        mutationFn: (data: CreateAnnouncementRequest) => {
+            return announcementsApi.create(data);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: announcementKeys.lists(),

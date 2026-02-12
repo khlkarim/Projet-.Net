@@ -93,20 +93,19 @@ export function HeaderUserDropdown({
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/profile">
+          <Link className="cursor-pointer" href="/account">
             <UserIcon className="mr-2 h-4 w-4" />
             Account
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/profile">
+          <Link className="cursor-pointer" href="/notifications">
             <Bell className="mr-2 h-4 w-4" />
             Notifications
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          asChild
           className={cn(
             "cursor-pointer",
             isDashboard
@@ -116,7 +115,7 @@ export function HeaderUserDropdown({
                 focus:text-destrctive
               `,
           )}
-          onClick={() => { logoutMutation.mutateAsync() }}
+          onClick={() => { console.log("calling the mutation"); logoutMutation.mutateAsync() }}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Log out

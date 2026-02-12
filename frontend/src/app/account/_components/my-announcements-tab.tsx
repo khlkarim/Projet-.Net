@@ -1,5 +1,6 @@
 "use client";
 
+import { AnnouncementType, FuelType, TransmissionType, VehicleType } from "~/types/enums";
 import { CarFrontIcon, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -126,7 +127,7 @@ export function MyAnnouncementsTab() {
                                           transition-transform
                                           group-hover:scale-105
                                         `}
-                                        src={announcement.files[0].filePath}
+                                        src={announcement.files[0].filePath.startsWith("http") ? announcement.files[0].filePath : "http://localhost:5219" + announcement.files[0].filePath}
                                     />
                                 ) : (
                                     <div className={`
@@ -141,7 +142,7 @@ export function MyAnnouncementsTab() {
                                 <Badge className={`
                                   absolute top-2 right-2 backdrop-blur-md
                                 `} variant="secondary">
-                                    {announcement.announcementType}
+                                    {AnnouncementType[announcement.announcementType]}
                                 </Badge>
                             </div>
                             <CardHeader className="p-4">

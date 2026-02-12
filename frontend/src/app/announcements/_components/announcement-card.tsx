@@ -17,7 +17,7 @@ interface AnnouncementCardProps {
 
 export function AnnouncementCard({ announcement, className }: AnnouncementCardProps) {
     const mainImage = announcement.files && announcement.files.length > 0
-        ? "http://localhost:5219" + announcement.files[0].filePath
+        ? (announcement.files[0].filePath.startsWith("http") ? announcement.files[0].filePath : "http://localhost:5219" + announcement.files[0].filePath)
         : null;
     console.log(mainImage);
 

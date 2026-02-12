@@ -45,7 +45,7 @@ function AccountPage() {
                             <span className={`
                               hidden
                               sm:inline
-                            `}>My Announcements</span>
+                            `}>Announcements</span>
                             <span className="sm:hidden">Announce</span>
                         </TabsTrigger>
                         <TabsTrigger className="gap-2" value="reservations">

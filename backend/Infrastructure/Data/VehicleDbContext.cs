@@ -85,8 +85,7 @@ namespace VehiclePlatform.API.Infrastructure.Data
                       .HasForeignKey(r => r.AnnouncementId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasIndex(r => new { r.ApplicationUserId, r.AnnouncementId })
-                      .IsUnique(); // one review per user per announcement
+                entity.HasIndex(r => new { r.ApplicationUserId, r.AnnouncementId });
             });
 
             /* -----------------------------

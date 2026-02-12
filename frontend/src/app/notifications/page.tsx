@@ -1,5 +1,7 @@
 "use client";
 
+import { PageHeader, PageHeaderDescription, PageHeaderHeading } from "~/ui/components/page-header";
+
 import { Bell, Check, Trash2, X } from "lucide-react";
 import * as React from "react";
 
@@ -104,22 +106,14 @@ function NotificationsPage() {
   const isEmpty = !notifications || notifications.length === 0;
 
   return (
-    <div className="container mx-auto max-w-4xl py-10 px-4">
+    <div className="container mx-auto max-w-4xl">
+      <PageHeader>
+        <PageHeaderHeading>Notifications</PageHeaderHeading>
+        <PageHeaderDescription>
+          Stay updated with your latest alerts and messages
+        </PageHeaderDescription>
+      </PageHeader>
       <Card className="min-h-[600px] flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-          <div className="space-y-1">
-            <CardTitle className="text-2xl">Notifications</CardTitle>
-            <CardDescription>
-              Stay updated with your latest alerts and messages
-            </CardDescription>
-          </div>
-          {!isEmpty && (
-            <div className="flex gap-2">
-              {/* Placeholder for future "Mark all as read" functionality */}
-            </div>
-          )}
-        </CardHeader>
-        <Separator />
         <CardContent className="flex-1 p-0">
           {isEmpty ? (
             <div className="flex flex-col items-center justify-center h-full py-20 text-center text-muted-foreground">

@@ -30,8 +30,9 @@ export const usersApi = {
         payload: UserUpdateRequest
     ): Promise<User> {
         const validatedPayload = userUpdateRequestSchema.parse(payload);
+        console.log(payload);
 
-        const response = await axiosInstance.put(
+        const response = await axiosInstance.patch(
             `/api/Users/${id}`,
             validatedPayload
         );

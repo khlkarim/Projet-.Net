@@ -49,7 +49,6 @@ export const announcementsApi = {
 
     getAll: async (): Promise<AnnouncementResponse[]> => {
         const res = await axiosInstance.get('/api/Announcements');
-        console.log(res);
         return res.data.map((a: unknown) => announcementResponseSchema.parse(a));
     },
 

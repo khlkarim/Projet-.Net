@@ -13,6 +13,7 @@ export const reviewsApi = {
     create: async (data: CreateReviewRequest): Promise<ReviewResponse> => {
         createReviewRequestSchema.parse(data);
         const res = await axiosInstance.post('/api/Reviews', data);
+        console.log(res);
         return reviewResponseSchema.parse(res.data);
     },
 

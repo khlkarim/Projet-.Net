@@ -5,6 +5,7 @@ import {
     CreateNotificationRequest,
     UpdateNotificationRequest,
 } from '../schemas/notifications.schemas';
+import { useUsers } from '~/features/users/hooks/users.hooks';
 
 /* ================================
    Query Keys
@@ -53,6 +54,11 @@ export const useNotification = (id: string) =>
 
 export const useCreateNotification = () => {
     const queryClient = useQueryClient();
+    const createNotification = useCreateNotification();
+    const {
+        data: users,
+        isPending: usersPending,
+    } = useUsers();
 
     return useMutation({
         mutationFn: (data: CreateNotificationRequest) =>
@@ -60,6 +66,13 @@ export const useCreateNotification = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: notificationKeys.lists(),
+            });
+
+            if (usersPending) return;
+            createNotification.mutateAsync({
+                title: 'Notification created',
+                content: 'A new notification has been created',
+                recipientIds: users?.map((u) => u.id) ?? [],
             });
         },
     });

@@ -41,7 +41,7 @@ export const useLogout = () => {
     const { logout } = useAuthStore();
     return {
         mutate: logout,
-        mutateAsync: async () => logout
+        mutateAsync: async () => logout()
     }
 }
 

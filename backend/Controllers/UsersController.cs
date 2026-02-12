@@ -63,7 +63,6 @@ namespace VehiclePlatform.API.Controllers
          * PATCH: api/users/{id}
          * ============================ */
         [HttpPatch("{id}")]
-        [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB
         [Authorize]
         public async Task<ActionResult<ApplicationUserResponseDto>> UpdateUser(
             string id,
